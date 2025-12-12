@@ -1,4 +1,4 @@
-package com.eateum.eateumbe.fridges.domain;
+package com.eateum.eateumbe.fridges.dto.response;
 
 import lombok.Data;
 

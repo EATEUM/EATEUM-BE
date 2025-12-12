@@ -1,13 +1,15 @@
 package com.eateum.eateumbe.fridges.service;
 
-import com.eateum.eateumbe.fridges.domain.FridgeResponse;
-import com.eateum.eateumbe.fridges.repository.FridgeRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.stereotype.Service;
+
+import com.eateum.eateumbe.fridges.dto.response.FridgeResponse;
+import com.eateum.eateumbe.fridges.repository.FridgeRepository;
 
 @Service
 @RequiredArgsConstructor //매퍼 연결 해주기
@@ -39,5 +41,7 @@ public class FridgeService {
 
         return resultmap;
     }
+
+
 
 }

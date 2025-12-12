@@ -1,11 +1,11 @@
 package com.eateum.eateumbe.fridges.repository;
 
-import com.eateum.eateumbe.fridges.domain.FridgeResponse;
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
-import java.util.List;
+import com.eateum.eateumbe.fridges.dto.response.FridgeResponse;
 
 //MyBatis로 사용하면서 작업을 한다. JPA는 사용 안함
 @Mapper
@@ -22,5 +22,7 @@ public interface FridgeRepository {
 
     //나의 냉장고 재료가 총 몇개 있는지 확인한다.
     int countTotalItems(@Param("userId") String userId);
+
+
 
 }
