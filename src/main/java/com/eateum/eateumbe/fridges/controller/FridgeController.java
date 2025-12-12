@@ -1,17 +1,20 @@
 package com.eateum.eateumbe.fridges.controller;
 
-import com.eateum.eateumbe.fridges.domain.FridgeResponse;
-import com.eateum.eateumbe.fridges.service.FridgeService;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.eateum.eateumbe.fridges.dto.response.FridgeResponse;
+import com.eateum.eateumbe.fridges.service.FridgeService;
+
 
 @RestController
 @RequestMapping("/fridges")
@@ -34,9 +37,9 @@ public class FridgeController {
             @RequestParam(value = "size", defaultValue = "10") int size) {
 
         //테스트용 ID 설정
-//        if(userId == null) {
-//            userId = "test-user-id";
-//        }
+        if(userId == null) {
+            userId = "test-user-id";
+        }
 
         //Map을 사용해 userId를 통해서 재료 목록과 재료 전체 개수를 받아온다.
         Map<String, Object> serviceResult = fridgeService.getMyFridgeItems(userId, page, size);
