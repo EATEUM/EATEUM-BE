@@ -23,6 +23,9 @@ public interface FridgeRepository {
     //나의 냉장고 재료가 총 몇개 있는지 확인한다.
     int countTotalItems(@Param("userId") String userId);
 
+    //재료 검색 - keyword : 검색어 ("파") -> XML의 #{keyword}로 들어간다.
+    List<FridgeResponse> searchItem(@Param("keyword") String keyword);
+
 
 
 }
