@@ -8,7 +8,7 @@
 items 테이블 ID와 fridge_item 테이블 ID를 연결해서
 파라미터로 받은 userId랑 똑같은 사람을 찾는다.
 이후 생성일 기준으로 최신순(내림차순)으로 재료 아이디, 재료 이름, 재료 이미지를 조회한다.-->
-<select id="selectFridgeListByUserId" resultType="com.eateum.eateumbe.fridges.domain.FridgeResponse">
+<select id="selectFridgeListByUserId" resultType="com.eateum.eateumbe.fridges.dto.response.FridgeResponse">
     SELECT i.item_id, i.item_name, i.item_img
     FROM fridge_item f
     JOIN items i ON f.item_id = i.item_id
@@ -23,5 +23,13 @@ items 테이블 ID와 fridge_item 테이블 ID를 연결해서
     FROM fridge_item
     WHERE user_id = #{userId}
 </select>
+
+<!--  사용자가 "파" 하나만 입력해도 파스타면, 파가 찾아진다. 이후 이름 순으로 오름차순 정렬하여 사용자에게 보여짐 -->
+    <select id = "searchItem" resultType= "com.eateum.eateumbe.fridges.dto.response.FridgeResponse">
+        SELECT item_id, item_name, item_img
+        FROM items
+        WHERE item_name Like CONCAT('%', #{keyword}, '%')
+        ORDER BY item_name ASC
+    </select>
 
 </mapper>
