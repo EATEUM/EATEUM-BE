@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 public class Fridge {
 
+
     private Long fridgeId;
     private String userId;
     private Long itemId;
