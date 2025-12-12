@@ -78,4 +78,24 @@ public class FridgeController {
         return ResponseEntity.ok(response);
     }
 
+    /*
+    재료 검색 API
+     */
+    @GetMapping("/search")
+    public ResponseEntity<Map<String, Object>> searchFridge(
+            @RequestParam("keyword") String keyword
+    ) {
+        List<FridgeResponse> searchResult = fridgeService.searchItems(keyword);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("items", searchResult);
+
+        response.put("data", data);
+
+        return ResponseEntity.ok(response);
+    }
+
 }
