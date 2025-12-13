@@ -8,12 +8,16 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eateum.eateumbe.fridges.dto.response.FridgeResponse;
 import com.eateum.eateumbe.fridges.service.FridgeService;
+import com.eateum.eateumbe.fridges.dto.request.FridgeRequest;
+import static com.eateum.eateumbe.fridges.dto.response.FridgeResponse.*;
 
 
 @RestController
@@ -37,9 +41,9 @@ public class FridgeController {
             @RequestParam(value = "size", defaultValue = "10") int size) {
 
         //테스트용 ID 설정
-        if(userId == null) {
-            userId = "test-user-id";
-        }
+//        if(userId == null) {
+//            userId = "test-user-id";
+//        }
 
         //Map을 사용해 userId를 통해서 재료 목록과 재료 전체 개수를 받아온다.
         Map<String, Object> serviceResult = fridgeService.getMyFridgeItems(userId, page, size);
@@ -94,6 +98,25 @@ public class FridgeController {
         data.put("items", searchResult);
 
         response.put("data", data);
+
+        return ResponseEntity.ok(response);
+    }
+
+    /*
+    재료 추가 API(검색)
+     */
+    @PostMapping
+    public ResponseEntity<Map<String, Object>> addItem(
+        @RequestBody FridgeRequest request
+    ) {
+        String userId = "test-user-id"; //테스트 아이디 임시 추가
+
+        AddItem addedItem = fridgeService.addItem(userId, request);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "냉장고에 재료가 추가되었습니다.");
+        response.put("data", addedItem);
 
         return ResponseEntity.ok(response);
     }

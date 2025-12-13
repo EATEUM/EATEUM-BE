@@ -4,12 +4,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.eateum.eateumbe.fridges.dto.request.FridgeRequest;
+import com.eateum.eateumbe.fridges.dto.response.FridgeResponse.AddItem;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 
 import com.eateum.eateumbe.fridges.dto.response.FridgeResponse;
 import com.eateum.eateumbe.fridges.repository.FridgeRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -40,5 +43,16 @@ public class FridgeServiceImpl implements FridgeService {
     @Override
     public List<FridgeResponse> searchItems(String keyword) {
         return fridgeRepository.searchItem(keyword);
+    }
+
+    //재료 추가(검색)
+    @Override
+    @Transactional
+    public AddItem addItem(String userId, FridgeRequest request) {
+        fridgeRepository.addFridgeItem(userId, request.getItemId());
+
+        AddItem addedItem = fridgeRepository.selectItemDetail(request.getItemId());
+
+        return addedItem;
     }
 }

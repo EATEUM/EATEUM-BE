@@ -7,6 +7,8 @@ import org.apache.ibatis.annotations.Param;
 
 import com.eateum.eateumbe.fridges.dto.response.FridgeResponse;
 
+import static com.eateum.eateumbe.fridges.dto.response.FridgeResponse.*;
+
 //MyBatis로 사용하면서 작업을 한다. JPA는 사용 안함
 @Mapper
 public interface FridgeRepository {
@@ -25,6 +27,11 @@ public interface FridgeRepository {
 
     //재료 검색 - keyword : 검색어 ("파") -> XML의 #{keyword}로 들어간다.
     List<FridgeResponse> searchItem(@Param("keyword") String keyword);
+
+    //재료 추가(검색)
+    void addFridgeItem(@Param("userId") String userId, @Param("itemId") Long itemId);
+    //단일 재료 상세 조회
+    AddItem selectItemDetail(@Param("itemId") Long itemId);
 
 
 
