@@ -23,8 +23,6 @@ public class RagService {
     @Value("${ai.server.url}")
     private String ragApiUrl;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     public List<Long> getRecommendedIds(List<String> selectedItems) {
         try {
             Map<String, Object> requestBody = new HashMap<>();
