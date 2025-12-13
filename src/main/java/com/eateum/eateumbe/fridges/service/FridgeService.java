@@ -3,13 +3,12 @@ package com.eateum.eateumbe.fridges.service;
 import java.util.List;
 import java.util.Map;
 
+import com.eateum.eateumbe.fridges.dto.request.FridgeRequest;
 import com.eateum.eateumbe.fridges.dto.response.FridgeResponse;
-
+import com.eateum.eateumbe.fridges.dto.response.FridgeResponse.AddItem;
 
 
 public interface FridgeService {
-
-
 
     /*
     나의 냉장고 재료 조회
@@ -19,13 +18,16 @@ public interface FridgeService {
      */
     Map<String, Object> getMyFridgeItems(String userId, int page, int size);
 
-
-
     /*
     재료 검색
     */
     List<FridgeResponse> searchItems(String keyword);
 
+
+    /*
+    재료 추가 기능(검색)
+     */
+    AddItem addItem(String userId, FridgeRequest request);
 
 
 }

@@ -32,4 +32,18 @@ items 테이블 ID와 fridge_item 테이블 ID를 연결해서
         ORDER BY item_name ASC
     </select>
 
+<!--   재료 추가(검색) -->
+    <insert id="addFridgeItem">
+        INSERT INTO fridge_item(user_id, item_id, created_at)
+        VALUES (#{userId}, #{itemId}, NOW())
+    </insert>
+    <select id="selectItemDetail" resultType="com.eateum.eateumbe.fridges.dto.response.FridgeResponse$AddItem">
+        SELECT
+            item_id as itemId,
+            item_name as itemName,
+            item_img as itemImg
+        FROM items
+        WHERE item_id = #{itemId}
+    </select>
+
 </mapper>
