@@ -50,19 +50,9 @@ public class RecipeResponse {
                     .thumbnailUrl(recipe.getThumbnailUrl())
                     .videoUrl(recipe.getVideoUrl())
                     .duration(recipe.getDuration())
-                    .viewCount(parseViewCount(recipe.getViewCount()))
+                    .viewCount(recipe.getViewCount())
                     .items(responseItems)
                     .build();
-        }
-
-        // 조회수 파싱 헬퍼 메서드
-        private static Long parseViewCount(String viewCountStr) {
-            if (viewCountStr == null) return 0L;
-            try {
-                return Long.parseLong(viewCountStr.replaceAll("[^0-9]", ""));
-            } catch (NumberFormatException e) {
-                return 0L;
-            }
         }
     }
 }
