@@ -13,4 +13,9 @@ public class FridgeRequest {
     public static class AddItem {
         private Long itemId;
     }
+
+    @Data
+    public static class DeleteItem {
+        private Long itemId;
+    }
 }
