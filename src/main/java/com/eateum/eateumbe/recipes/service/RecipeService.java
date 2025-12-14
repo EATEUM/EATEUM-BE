@@ -14,4 +14,6 @@ public interface RecipeService {
 
     // 지금 뜨고 있는 레시피
     List<RecipeResponse.Recommend> recommendPopularRecipes();
+
+
 }

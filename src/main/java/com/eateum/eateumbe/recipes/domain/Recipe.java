@@ -1,16 +1,10 @@
 package com.eateum.eateumbe.recipes.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
-@Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 public class Recipe {
 
     private Long recipeVideoId;
@@ -25,11 +19,23 @@ public class Recipe {
 
     private List<RecipeItem> items;
 
+    private Long categoryId; // 관련 영상 조회?? TODO : 수정하기
+
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class RecipeItem {
         private Long itemId;
         private String itemName;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RecipeStep {
+        private Integer stepNumber;
+        private String stepTitle;
+        private String description; // 단계별 설명 텍스트
     }
 }
