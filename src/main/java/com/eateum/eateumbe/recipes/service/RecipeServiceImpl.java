@@ -20,7 +20,7 @@ public class RecipeServiceImpl implements RecipeService {
     private final RagService ragService;
 
     @Override
-    public List<RecipeResponse.Recommend> recommendRecipes(RecipeRequest.Recommend request) {
+    public List<RecipeResponse.Recommend> recommendAiRecipes(RecipeRequest.Recommend request) {
 
         if (request == null || request.getSelectedItems() == null) {
             return List.of();
@@ -46,4 +46,15 @@ public class RecipeServiceImpl implements RecipeService {
                 .map(RecipeResponse.Recommend::from)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<RecipeResponse.Recommend> recommendSpeedRecipes() {
+        List<Recipe> recipes = recipeMapper.selectSpeedRecipes();
+
+        return recipes.stream()
+                .map(RecipeResponse.Recommend::from)
+                .collect(Collectors.toList());
+    }
+
+
 }

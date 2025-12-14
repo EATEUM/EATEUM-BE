@@ -9,5 +9,7 @@ import java.util.List;
 @Mapper
 public interface RecipeMapper {
     List<Recipe> selectRecipesByIds(@Param("recipeVideoIds") List<Long> recipeVideoIds);
+
+    List<Recipe> selectSpeedRecipes();
 }
 

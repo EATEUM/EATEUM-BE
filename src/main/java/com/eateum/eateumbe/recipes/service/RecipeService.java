@@ -6,5 +6,9 @@ import java.util.List;
 
 public interface RecipeService {
 
-    List<RecipeResponse.Recommend> recommendRecipes(RecipeRequest.Recommend request);
+    //AI 추천 레시피
+    List<RecipeResponse.Recommend> recommendAiRecipes(RecipeRequest.Recommend request);
+
+    // 15분컷 레시피
+    List<RecipeResponse.Recommend> recommendSpeedRecipes();
 }
