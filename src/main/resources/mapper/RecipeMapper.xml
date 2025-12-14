@@ -14,6 +14,7 @@
         <result property="thumbnailUrl"  column="thumbnail_url"/>
         <result property="videoUrl"      column="video_url"/>
         <result property="viewCount"     column="view_count"/>
+        <result property="userViewCount"     column="user_view_count"/>
         <result property="duration"      column="duration"/>
 
         <collection property="items"
@@ -103,4 +104,37 @@
 
     </select>
 
+    <!-- 뜨고 있는 레시피 -->
+    <select id="selectPopularRecipes"
+            resultMap="RecipeWithItemsMap">
+        SELECT
+            rv.recipe_video_id,
+            rv.video_title,
+            rv.thumbnail_url,
+            rv.video_url,
+            rv.view_count,
+            rv.duration,
+            rv.user_view_count,
+            i.item_id,
+            i.item_name
+        FROM recipe_video rv
+            JOIN (
+                SELECT
+                    recipe_video_id
+                FROM
+                    recipe_video
+                ORDER BY
+                    user_view_count DESC,
+                    view_count DESC
+                LIMIT 3
+            ) top_recipes
+                ON rv.recipe_video_id = top_recipes.recipe_video_id
+
+            LEFT JOIN recipe_items ri ON rv.recipe_video_id = ri.recipe_video_id
+            LEFT JOIN items i ON ri.item_id = i.item_id
+
+        ORDER BY
+            rv.user_view_count DESC,
+            rv.view_count DESC
+    </select>
 </mapper>

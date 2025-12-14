@@ -18,6 +18,7 @@ public class Recipe {
     private String videoUrl;
     private String thumbnailUrl;
     private Long viewCount;
+    private Long userViewCount;
     private String duration;
     // 추후 수정해야 함
     private String recipeJson;

@@ -56,5 +56,14 @@ public class RecipeServiceImpl implements RecipeService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<RecipeResponse.Recommend> recommendPopularRecipes() {
+        List<Recipe> recipes = recipeMapper.selectPopularRecipes();
+
+        return recipes.stream()
+                .map(RecipeResponse.Recommend::from)
+                .collect(Collectors.toList());
+    }
+
 
 }

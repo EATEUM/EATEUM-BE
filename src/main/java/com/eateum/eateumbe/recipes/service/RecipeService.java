@@ -11,4 +11,7 @@ public interface RecipeService {
 
     // 15분컷 레시피
     List<RecipeResponse.Recommend> recommendSpeedRecipes();
+
+    // 지금 뜨고 있는 레시피
+    List<RecipeResponse.Recommend> recommendPopularRecipes();
 }
