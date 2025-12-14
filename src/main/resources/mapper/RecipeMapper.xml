@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eateum.eateumbe.recipes.repository.RecipeMapper">
+    <!-- AI 추천 레시피 생성 부분-->
+    <select id="selectRecipesByIds" resultType="Recipe">
+        SELECT
+        recipe_video_id AS recipeVideoId,
+        video_title AS videoTitle,
+        thumbnail_url AS thumbnailUrl,
+        video_url AS videoUrl,
+        view_count AS viewCount,
+        duration
+        FROM recipe_video
+        WHERE recipe_video_id IN
+        <foreach item="recipeVideoId" collection="recipeVideoIds" open="(" separator="," close=")">
+            #{recipeVideoId}
+        </foreach>
+        ORDER BY FIELD(recipe_video_id,
+        <foreach item="recipeVideoId" collection="recipeVideoIds" separator=",">
+            #{recipeVideoId}
+        </foreach>
+        )
+    </select>
+</mapper>
