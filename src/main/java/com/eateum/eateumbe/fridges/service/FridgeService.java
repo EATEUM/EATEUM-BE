@@ -30,4 +30,8 @@ public interface FridgeService {
     AddItem addItem(String userId, FridgeRequest request);
 
 
+    /*
+    재료 삭제
+     */
+    void deleteItem(String userId, Long itemId);
 }

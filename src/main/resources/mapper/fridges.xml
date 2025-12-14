@@ -46,4 +46,11 @@ items 테이블 ID와 fridge_item 테이블 ID를 연결해서
         WHERE item_id = #{itemId}
     </select>
 
+<!--    재료 삭제 -->
+    <delete id="deleteItem">
+        DELETE FROM fridge_item
+        WHERE user_id = #{userId}
+        AND item_id = #{itemId}
+    </delete>
+
 </mapper>

@@ -6,8 +6,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.eateum.eateumbe.fridges.dto.response.FridgeResponse;
-
 import static com.eateum.eateumbe.fridges.dto.response.FridgeResponse.*;
+
 
 //MyBatis로 사용하면서 작업을 한다. JPA는 사용 안함
 @Mapper
@@ -33,6 +33,7 @@ public interface FridgeRepository {
     //단일 재료 상세 조회
     AddItem selectItemDetail(@Param("itemId") Long itemId);
 
-
+    //재료 삭제 기능
+    void deleteItem(@Param("userId") String userId, @Param("itemId") Long itemId);
 
 }
