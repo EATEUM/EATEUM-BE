@@ -20,9 +20,9 @@ public class RecipeController {
     private final RecipeService recipeService;
 
     @PostMapping("/recommend/ai")
-    public ApiResponse<List<RecipeResponse>> recommend(@RequestBody RecipeRequest request) {
+    public ApiResponse<List<RecipeResponse.Recommend>> recommend(@RequestBody RecipeRequest.Recommend request) {
 
-        List<RecipeResponse> results = recipeService.recommendRecipes(request);
+        List<RecipeResponse.Recommend> results = recipeService.recommendRecipes(request);
 
         return ApiResponse.success(results);
     }

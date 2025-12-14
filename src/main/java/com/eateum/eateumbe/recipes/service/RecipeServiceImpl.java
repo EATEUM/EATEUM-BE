@@ -20,10 +20,15 @@ public class RecipeServiceImpl implements RecipeService {
     private final RagService ragService;
 
     @Override
-    public List<RecipeResponse> recommendRecipes(RecipeRequest request) {
+    public List<RecipeResponse.Recommend> recommendRecipes(RecipeRequest.Recommend request) {
+
+        if (request == null || request.getSelectedItems() == null) {
+            return List.of();
+        }
+
         List<String> items = request.getSelectedItems();
 
-        if (items == null || items.isEmpty()) {
+        if (items.isEmpty()) {
             return List.of();
         }
 
@@ -34,12 +39,11 @@ public class RecipeServiceImpl implements RecipeService {
             return List.of();
         }
 
-        // 받아온 ID로 DB 조회 (Domain(Entity) 반환)
         List<Recipe> recipes = recipeMapper.selectRecipesByIds(recommendedIds);
 
         // Domain(Entity) -> DTO 변환
         return recipes.stream()
-                .map(RecipeResponse::from)
+                .map(RecipeResponse.Recommend::from)
                 .collect(Collectors.toList());
     }
 }

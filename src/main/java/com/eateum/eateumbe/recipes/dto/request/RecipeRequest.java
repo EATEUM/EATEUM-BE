@@ -1,9 +1,16 @@
 package com.eateum.eateumbe.recipes.dto.request;
-import lombok.Data;
+import lombok.*;
 
 import java.util.List;
 
-@Data
+
 public class RecipeRequest {
-    private List<String> selectedItems;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Recommend{
+        private List<String> selectedItems;
+    }
 }

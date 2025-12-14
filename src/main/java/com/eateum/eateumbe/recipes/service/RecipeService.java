@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface RecipeService {
 
-    List<RecipeResponse> recommendRecipes(RecipeRequest request);
+    List<RecipeResponse.Recommend> recommendRecipes(RecipeRequest.Recommend request);
 }
