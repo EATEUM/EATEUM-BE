@@ -5,10 +5,7 @@ import com.eateum.eateumbe.recipes.dto.request.RecipeRequest;
 import com.eateum.eateumbe.recipes.dto.response.RecipeResponse;
 import com.eateum.eateumbe.recipes.service.RecipeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,10 +17,17 @@ public class RecipeController {
     private final RecipeService recipeService;
 
     @PostMapping("/recommend/ai")
-    public ApiResponse<List<RecipeResponse>> recommend(@RequestBody RecipeRequest request) {
+    public ApiResponse<List<RecipeResponse.Recommend>> recommendAi(@RequestBody RecipeRequest.Recommend request) {
 
-        List<RecipeResponse> results = recipeService.recommendRecipes(request);
+        List<RecipeResponse.Recommend> results = recipeService.recommendAiRecipes(request);
 
         return ApiResponse.success(results);
     }
+
+    @GetMapping("/recommend/speed")
+    public ApiResponse<List<RecipeResponse.Recommend>> recommendSpeed() {
+        List<RecipeResponse.Recommend> results = recipeService.recommendSpeedRecipes();
+        return ApiResponse.success(results);
+    }
+
 }

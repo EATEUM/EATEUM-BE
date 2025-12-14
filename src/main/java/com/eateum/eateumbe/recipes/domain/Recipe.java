@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @Builder
 @NoArgsConstructor
@@ -19,4 +21,14 @@ public class Recipe {
     private String duration;
     // 추후 수정해야 함
     private String recipeJson;
+
+    private List<RecipeItem> items;
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RecipeItem {
+        private Long itemId;
+        private String itemName;
+    }
 }

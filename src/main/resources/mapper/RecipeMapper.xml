@@ -1,26 +1,106 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.eateum.eateumbe.recipes.repository.RecipeMapper">
-    <!-- AI 추천 레시피 생성 부분-->
-    <select id="selectRecipesByIds" resultType="Recipe">
+
+    <!-- AI 추천 레시피 생성 -->
+    <resultMap id="RecipeWithItemsMap"
+               type="com.eateum.eateumbe.recipes.domain.Recipe">
+
+        <id     property="recipeVideoId" column="recipe_video_id"/>
+        <result property="videoTitle"    column="video_title"/>
+        <result property="thumbnailUrl"  column="thumbnail_url"/>
+        <result property="videoUrl"      column="video_url"/>
+        <result property="viewCount"     column="view_count"/>
+        <result property="duration"      column="duration"/>
+
+        <collection property="items"
+                    ofType="com.eateum.eateumbe.recipes.domain.Recipe$RecipeItem">
+            <id     property="itemId"   column="item_id"/>
+            <result property="itemName" column="item_name"/>
+        </collection>
+
+    </resultMap>
+
+    <!-- AI 추천 레시피 조회 (ID 순서 유지) -->
+    <select id="selectRecipesByIds"
+            resultMap="RecipeWithItemsMap">
+
         SELECT
-        recipe_video_id AS recipeVideoId,
-        video_title AS videoTitle,
-        thumbnail_url AS thumbnailUrl,
-        video_url AS videoUrl,
-        view_count AS viewCount,
-        duration
-        FROM recipe_video
-        WHERE recipe_video_id IN
-        <foreach item="recipeVideoId" collection="recipeVideoIds" open="(" separator="," close=")">
-            #{recipeVideoId}
-        </foreach>
-        ORDER BY FIELD(recipe_video_id,
-        <foreach item="recipeVideoId" collection="recipeVideoIds" separator=",">
-            #{recipeVideoId}
-        </foreach>
+            rv.recipe_video_id,
+            rv.video_title,
+            rv.thumbnail_url,
+            rv.video_url,
+            rv.view_count,
+            rv.duration,
+            i.item_id,
+            i.item_name
+        FROM recipe_video rv
+            LEFT JOIN recipe_items ri
+                   ON rv.recipe_video_id = ri.recipe_video_id
+            LEFT JOIN items i
+                   ON ri.item_id = i.item_id
+        WHERE rv.recipe_video_id IN
+            <foreach item="recipeVideoId"
+                     collection="recipeVideoIds"
+                     open="("
+                     separator=","
+                     close=")">
+                #{recipeVideoId}
+            </foreach>
+        ORDER BY FIELD(
+            rv.recipe_video_id,
+            <foreach item="recipeVideoId"
+                     collection="recipeVideoIds"
+                     separator=",">
+                #{recipeVideoId}
+            </foreach>
         )
+
     </select>
+
+    <!-- 15분컷 스피드 요리 -->
+    <select id="selectSpeedRecipes"
+            resultMap="RecipeWithItemsMap">
+        SELECT
+            rv.recipe_video_id,
+            rv.video_title,
+            rv.thumbnail_url,
+            rv.video_url,
+            rv.view_count,
+            rv.duration,
+            i.item_id,
+            i.item_name
+        FROM recipe_video rv
+            JOIN (
+                SELECT recipe_video_id
+                FROM recipe_video
+                WHERE
+                    (
+                        video_title LIKE '%15분%'
+                        OR video_title LIKE '%10분%'
+                        OR video_title LIKE '%5분%'
+                        OR video_title LIKE '%간단%'
+                        OR video_title LIKE '%뚝딱%'
+                    )
+                    OR (
+                        duration IS NOT NULL
+                        AND LPAD(duration, 5, '0') &lt; '15:00'
+                    )
+                ORDER BY view_count DESC
+                LIMIT 3
+            ) top_recipes
+                ON rv.recipe_video_id = top_recipes.recipe_video_id
+
+            LEFT JOIN recipe_items ri
+                   ON rv.recipe_video_id = ri.recipe_video_id
+            LEFT JOIN items i
+                   ON ri.item_id = i.item_id
+
+        ORDER BY rv.view_count DESC
+
+    </select>
+
 </mapper>
