@@ -11,5 +11,7 @@ public interface RecipeMapper {
     List<Recipe> selectRecipesByIds(@Param("recipeVideoIds") List<Long> recipeVideoIds);
 
     List<Recipe> selectSpeedRecipes();
+
+    List<Recipe> selectPopularRecipes();
 }
 

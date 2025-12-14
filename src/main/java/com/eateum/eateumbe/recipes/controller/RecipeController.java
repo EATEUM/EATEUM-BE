@@ -30,4 +30,11 @@ public class RecipeController {
         return ApiResponse.success(results);
     }
 
+
+    @GetMapping("/recommend/popular")
+    public ApiResponse<List<RecipeResponse.Recommend>> recommendPopular() {
+        List<RecipeResponse.Recommend> results = recipeService.recommendPopularRecipes();
+        return ApiResponse.success(results);
+    }
+
 }
