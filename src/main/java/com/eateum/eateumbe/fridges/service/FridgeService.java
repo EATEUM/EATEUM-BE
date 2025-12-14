@@ -6,6 +6,7 @@ import java.util.Map;
 import com.eateum.eateumbe.fridges.dto.request.FridgeRequest;
 import com.eateum.eateumbe.fridges.dto.response.FridgeResponse;
 import com.eateum.eateumbe.fridges.dto.response.FridgeResponse.AddItem;
+import com.eateum.eateumbe.fridges.dto.response.FridgeResponse.FridgeListResponse;
 
 
 public interface FridgeService {
@@ -16,7 +17,7 @@ public interface FridgeService {
     page - 페이지 번호
     size - 한 페이지에 보여줄 재료 개수
      */
-    Map<String, Object> getMyFridgeItems(String userId, int page, int size);
+    FridgeListResponse getMyFridgeItems(String userId, int page, int size);
 
     /*
     재료 검색
