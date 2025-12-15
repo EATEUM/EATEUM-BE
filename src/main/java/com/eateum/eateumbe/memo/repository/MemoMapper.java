@@ -10,4 +10,7 @@ import java.util.List;
 public interface MemoMapper {
     List<Memo> selectMemosByRecipe(@Param("recipeVideoId") Long recipeVideoId, @Param("userId") Long userId);
 
+    void addMemo(Memo memo);
+
+    Memo selectMemoById(@Param("memoId") Long memoId);
 }

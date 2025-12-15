@@ -18,4 +18,22 @@
         ORDER BY created_at DESC
     </select>
 
+    <!-- 메모 추가  -->
+    <insert id="addMemo" useGeneratedKeys="true" keyProperty="memoId">
+        INSERT INTO recipe_memo (recipe_video_id, user_id, content, created_at)
+        VALUES (#{recipeVideoId}, #{userId}, #{content}, NOW())
+    </insert>
+
+    <!--추가한 메모 id별 단건 조회 -->
+    <select id="selectMemoById" resultType="Memo">
+        SELECT
+            memo_id,
+            recipe_video_id,
+            user_id,
+            content,
+            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') as createdAt
+        FROM recipe_memo
+        WHERE memo_id = #{memoId}
+    </select>
+
 </mapper>

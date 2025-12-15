@@ -1,10 +1,12 @@
 package com.eateum.eateumbe.memo.domain;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Memo {
     private Long memoId;
     private Long recipeVideoId;
