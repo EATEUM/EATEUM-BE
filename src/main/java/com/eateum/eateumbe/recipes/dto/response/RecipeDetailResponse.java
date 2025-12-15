@@ -1,41 +1,45 @@
 package com.eateum.eateumbe.recipes.dto.response;
 
+import com.eateum.eateumbe.memo.dto.response.MemoResponse;
+import com.eateum.eateumbe.recipes.domain.Recipe;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
-import java.util.List;
 
-@Data
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Getter
+@Builder
 public class RecipeDetailResponse {
 
-    // 1. Video Info & Description
     private Long recipeVideoId;
     private String videoTitle;
     private String videoUrl;
     private String duration;
 
-    // 2. User Status (Service에서 채워짐)
-    private boolean isLiked;
-    private boolean isCompleted;
+    private Boolean isLiked;
+    private Boolean isCompleted;
 
-    // 3. Steps (1:N 관계)
     private List<StepItem> steps;
 
-    // 4. Related Videos (Service에서 채워짐)
     private List<RelatedVideoItem> relatedVideos;
 
-    // 5. Memos (include_memo=true일 때 Service에서 채워짐)
-    private List<MemoItem> memos;
-
-    // ==========================================================
-    // Nested DTOs
+    private List<MemoResponse> memos;
 
     @Getter
     @Builder
     public static class StepItem {
         private Integer stepNumber;
         private String stepTitle;
-        private String description;
+        private String content;
+
+        public static StepItem from(Recipe.RecipeStep step) {
+            return StepItem.builder()
+                .stepNumber(step.getStepNumber())
+                .stepTitle(step.getStepTitle())
+                .content(step.getContent())
+                .build();
+        }
     }
 
     @Getter
@@ -45,13 +49,43 @@ public class RecipeDetailResponse {
         private String videoTitle;
         private String thumbnailUrl;
         private String duration;
+
+        public static RelatedVideoItem from(Recipe recipe) {
+            return RelatedVideoItem.builder()
+                .recipeVideoId(recipe.getRecipeVideoId())
+                .videoTitle(recipe.getVideoTitle())
+                .thumbnailUrl(recipe.getThumbnailUrl())
+                .duration(recipe.getDuration())
+                .build();
+        }
     }
 
-    @Getter
-    @Builder
-    public static class MemoItem {
-        private Long memoId;
-        private String content;
-        private String createdAt;
+    public static RecipeDetailResponse from(
+            Recipe recipe,
+            Boolean isLiked,
+            Boolean isCompleted,
+            List<Recipe> relatedVideos,
+            // MemoService에서 이미 DTO로 변환되어 전달된 리스트를 받음!!
+            // 왜? 다른 서비스 즉 MemoService 랑 주고 받을때는 완성된 결과물(DTO)만 주고 받는 것이 원칙이라 함!
+            List<MemoResponse> memos) {
+
+        List<StepItem> stepItems = recipe.getSteps() != null ?
+            recipe.getSteps().stream().map(StepItem::from).collect(Collectors.toList()) : List.of();
+
+        List<RelatedVideoItem> relatedVideoItems = relatedVideos.stream()
+            .map(RelatedVideoItem::from)
+            .collect(Collectors.toList());
+
+        return RecipeDetailResponse.builder()
+            .recipeVideoId(recipe.getRecipeVideoId())
+            .videoTitle(recipe.getVideoTitle())
+            .videoUrl(recipe.getVideoUrl())
+            .duration(recipe.getDuration())
+            .isLiked(isLiked)
+            .isCompleted(isCompleted)
+            .steps(stepItems)
+            .relatedVideos(relatedVideoItems)
+            .memos(memos)
+            .build();
     }
 }

@@ -14,10 +14,9 @@ public class Recipe {
     private Long viewCount;
     private Long userViewCount;
     private String duration;
-    // 추후 수정해야 함
-    private String recipeJson;
 
     private List<RecipeItem> items;
+    private List<RecipeStep> steps;
 
     private Long categoryId; // 관련 영상 조회?? TODO : 수정하기
 
@@ -30,12 +29,11 @@ public class Recipe {
     }
 
     @Getter
-    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class RecipeStep {
         private Integer stepNumber;
         private String stepTitle;
-        private String description; // 단계별 설명 텍스트
+        private String content;
     }
 }

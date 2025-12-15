@@ -5,37 +5,46 @@
 
 <mapper namespace="com.eateum.eateumbe.recipes.repository.RecipeMapper">
 
-    <!-- AI 추천 레시피 생성 -->
     <resultMap id="RecipeWithItemsMap"
                type="com.eateum.eateumbe.recipes.domain.Recipe">
 
-        <id     property="recipeVideoId" column="recipe_video_id"/>
-        <result property="videoTitle"    column="video_title"/>
-        <result property="thumbnailUrl"  column="thumbnail_url"/>
-        <result property="videoUrl"      column="video_url"/>
-        <result property="viewCount"     column="view_count"/>
-        <result property="userViewCount"     column="user_view_count"/>
-        <result property="duration"      column="duration"/>
+        <id property="recipeVideoId" column="recipe_video_id"/>
+        <result property="videoTitle" column="video_title"/>
+        <result property="thumbnailUrl" column="thumbnail_url"/>
+        <result property="videoUrl" column="video_url"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="userViewCount" column="user_view_count"/>
+        <result property="duration" column="duration"/>
 
         <collection property="items"
                     ofType="com.eateum.eateumbe.recipes.domain.Recipe$RecipeItem">
-            <id     property="itemId"   column="item_id"/>
+            <id property="itemId" column="item_id"/>
             <result property="itemName" column="item_name"/>
         </collection>
-
     </resultMap>
 
-    <!-- AI 추천 레시피 조회 (ID 순서 유지) -->
+    <resultMap id="recipeDetailMap" type="com.eateum.eateumbe.recipes.domain.Recipe">
+        <id property="recipeVideoId" column="recipe_video_id"/>
+        <result property="videoTitle" column="video_title"/>
+        <result property="videoUrl" column="video_url"/>
+        <result property="duration" column="duration"/>
+        <result property="categoryId" column="category_id"/>
+        <collection property="steps" ofType="com.eateum.eateumbe.recipes.domain.Recipe$RecipeStep">
+            <result property="stepNumber" column="step_number"/>
+            <result property="stepTitle" column="step_title"/>
+            <result property="content" column="content"/>
+        </collection>
+    </resultMap>
+    <!-- AI 추천 레시피 생성 -->
     <select id="selectRecipesByIds"
             resultMap="RecipeWithItemsMap">
-
         SELECT
             rv.recipe_video_id,
             rv.video_title,
             rv.thumbnail_url,
             rv.video_url,
             rv.view_count,
-            rv.duration,
+            rv.user_view_count, rv.duration,
             i.item_id,
             i.item_name
         FROM recipe_video rv
@@ -59,7 +68,6 @@
                 #{recipeVideoId}
             </foreach>
         )
-
     </select>
 
     <!-- 15분컷 스피드 요리 -->
@@ -71,7 +79,7 @@
             rv.thumbnail_url,
             rv.video_url,
             rv.view_count,
-            rv.duration,
+            rv.user_view_count, rv.duration,
             i.item_id,
             i.item_name
         FROM recipe_video rv
@@ -88,8 +96,7 @@
                     )
                     OR (
                         duration IS NOT NULL
-                        AND LPAD(duration, 5, '0') &lt; '15:00'
-                    )
+                        AND LPAD(duration, 5, '0') &lt; '15:00' )
                 ORDER BY view_count DESC
                 LIMIT 3
             ) top_recipes
@@ -113,9 +120,8 @@
             rv.thumbnail_url,
             rv.video_url,
             rv.view_count,
-            rv.duration,
             rv.user_view_count,
-            i.item_id,
+            rv.duration, i.item_id,
             i.item_name
         FROM recipe_video rv
             JOIN (
@@ -137,4 +143,56 @@
             rv.user_view_count DESC,
             rv.view_count DESC
     </select>
+
+    <!-- 레시피 상세 조회 -->
+    <select id="selectRecipeDetail" resultMap="recipeDetailMap">
+        SELECT
+            rv.recipe_video_id,
+            rv.video_title,
+            rv.video_url,
+            rv.duration,
+            rv.category_id,
+            rs.step_number,
+            rs.step_title,
+            rs.content
+        FROM recipe_video rv
+        LEFT JOIN recipe_steps rs ON rv.recipe_video_id = rs.recipe_video_id
+        WHERE rv.recipe_video_id = #{recipeVideoId}
+        ORDER BY rs.step_number
+    </select>
+
+    <!-- 좋아요 -->
+    <select id="selectIsLiked" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM liked_recipe
+            WHERE recipe_video_id = #{recipeVideoId}
+              AND user_id = #{userId}
+        )
+    </select>
+
+    <!-- 완료  -->
+    <select id="selectIsCompleted" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM completed_recipe
+            WHERE recipe_video_id = #{recipeVideoId}
+              AND user_id = #{userId}
+        )
+    </select>
+
+    <!-- 추천 영상 조회 -->
+    <select id="selectRelatedVideos" resultMap="recipeDetailMap">
+        SELECT
+            recipe_video_id,
+            video_title,
+            thumbnail_url,
+            duration
+        FROM recipe_video
+        WHERE category_id = #{categoryId}
+          AND recipe_video_id != #{recipeVideoId}
+        ORDER BY view_count DESC
+        LIMIT 3
+    </select>
+
 </mapper>

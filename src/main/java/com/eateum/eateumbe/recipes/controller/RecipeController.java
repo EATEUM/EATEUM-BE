@@ -40,8 +40,8 @@ public class RecipeController {
 
     @GetMapping("/{recipe_video_id}/detail")
     public ApiResponse<RecipeDetailResponse> getRecipeDetail(
-    @PathVariable("recipe_video_id") Long recipeVideoId,
-    @RequestParam(value = "include_memo", defaultValue = "false") boolean includeMemo
+        @PathVariable("recipe_video_id") Long recipeVideoId,
+        @RequestParam(value = "include_memo", defaultValue = "false") boolean includeMemo
     ){
         RecipeDetailResponse response = recipeService.getRecipeDetail(
             recipeVideoId,
