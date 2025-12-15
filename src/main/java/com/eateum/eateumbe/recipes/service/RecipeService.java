@@ -1,10 +1,8 @@
 package com.eateum.eateumbe.recipes.service;
 
-import com.eateum.eateumbe.recipes.domain.Recipe;
 import com.eateum.eateumbe.recipes.dto.request.RecipeRequest;
 import com.eateum.eateumbe.recipes.dto.response.RecipeDetailResponse;
 import com.eateum.eateumbe.recipes.dto.response.RecipeResponse;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -20,5 +18,5 @@ public interface RecipeService {
     List<RecipeResponse.Recommend> recommendPopularRecipes();
 
     // 레시피 상세 조회
-    RecipeDetailResponse getRecipeDetail(Long recipeVideoId, boolean includeMemo);
+    RecipeDetailResponse getRecipeDetail(Long recipeVideoId, Boolean includeMemo);
 }

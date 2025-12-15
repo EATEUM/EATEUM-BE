@@ -36,4 +36,11 @@
         WHERE memo_id = #{memoId}
     </select>
 
+    <!--  메모 삭제   -->
+    <delete id="deleteMemoById">
+        DELETE FROM recipe_memo
+        WHERE memo_id = #{memoId}
+          AND user_id = #{userId}
+    </delete>
+
 </mapper>

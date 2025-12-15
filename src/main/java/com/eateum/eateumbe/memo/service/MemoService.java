@@ -11,5 +11,6 @@ public interface MemoService {
 
     MemoResponse createMemo(Long recipeVideoId, Long userId, MemoRequest request);
 
+    void deleteMemo(Long recipeVideoId, Long userId);
 
 }

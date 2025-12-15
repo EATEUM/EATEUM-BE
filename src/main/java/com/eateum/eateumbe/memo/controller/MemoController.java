@@ -3,7 +3,6 @@ package com.eateum.eateumbe.memo.controller;
 import com.eateum.eateumbe.global.common.ApiResponse;
 import com.eateum.eateumbe.memo.dto.request.MemoRequest;
 import com.eateum.eateumbe.memo.dto.response.MemoResponse;
-import com.eateum.eateumbe.memo.repository.MemoMapper;
 import com.eateum.eateumbe.memo.service.MemoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +40,16 @@ public class MemoController {
         Long userId = getCurrentUserId();
         MemoResponse response = memoService.createMemo(recipeVideoId, userId, request);
         return ApiResponse.success(response);
+    }
+
+    @DeleteMapping("/{memo_id}")
+    public ApiResponse<Void> deleteMemo(
+        @PathVariable("recipe_video_id") Long recipeVideoId,
+        @PathVariable("memo_id") Long memoId
+    ) {
+        Long userId = getCurrentUserId();
+        memoService.deleteMemo(memoId, userId);
+        return ApiResponse.success(null);
     }
 
 }

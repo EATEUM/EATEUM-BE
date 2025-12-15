@@ -51,4 +51,10 @@ public class MemoServiceImpl implements MemoService {
 
         return MemoResponse.from(saveMemo);
     }
+
+    @Override
+    @Transactional
+    public void deleteMemo(Long memoId, Long userId) {
+        memoMapper.deleteMemoById(memoId, userId);
+    }
 }

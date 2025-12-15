@@ -13,4 +13,6 @@ public interface MemoMapper {
     void addMemo(Memo memo);
 
     Memo selectMemoById(@Param("memoId") Long memoId);
+
+    void deleteMemoById(@Param("memoId") Long memoId, @Param("userId") Long userId);
 }
