@@ -76,7 +76,7 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
-    public RecipeDetailResponse getRecipeDetail(Long recipeVideoId, boolean includeMemo) {
+    public RecipeDetailResponse getRecipeDetail(Long recipeVideoId, Boolean includeMemo) {
 
         Recipe recipe = recipeMapper.selectRecipeDetail(recipeVideoId);
         if (recipe == null) {

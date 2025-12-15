@@ -1,6 +1,7 @@
 package com.eateum.eateumbe.memo.service;
 
 import com.eateum.eateumbe.memo.domain.Memo;
+import com.eateum.eateumbe.memo.dto.request.MemoRequest;
 import com.eateum.eateumbe.memo.dto.response.MemoResponse;
 import com.eateum.eateumbe.memo.repository.MemoMapper;
 import lombok.RequiredArgsConstructor;
@@ -32,5 +33,28 @@ public class MemoServiceImpl implements MemoService {
         return memos.stream()
             .map(MemoResponse::from)
             .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public MemoResponse createMemo(Long recipeVideoId, Long userId, MemoRequest request) {
+
+        Memo memo = Memo.builder()
+                .recipeVideoId(recipeVideoId)
+                .userId(userId)
+                .content(request.getContent())
+                .build();
+
+        memoMapper.addMemo(memo);
+
+        Memo saveMemo = memoMapper.selectMemoById(memo.getMemoId());
+
+        return MemoResponse.from(saveMemo);
+    }
+
+    @Override
+    @Transactional
+    public void deleteMemo(Long memoId, Long userId) {
+        memoMapper.deleteMemoById(memoId, userId);
     }
 }
