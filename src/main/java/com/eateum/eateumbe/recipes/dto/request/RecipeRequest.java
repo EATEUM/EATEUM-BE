@@ -13,4 +13,6 @@ public class RecipeRequest {
     public static class Recommend{
         private List<String> selectedItems;
     }
+
+
 }
