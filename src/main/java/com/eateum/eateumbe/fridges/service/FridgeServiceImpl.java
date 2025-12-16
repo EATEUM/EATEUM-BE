@@ -12,6 +12,7 @@ import com.eateum.eateumbe.fridges.dto.request.FridgeRequest;
 import com.eateum.eateumbe.fridges.dto.response.FridgeResponse;
 import com.eateum.eateumbe.fridges.dto.response.FridgeResponse.AddItem;
 import com.eateum.eateumbe.fridges.repository.FridgeMapper;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @Service
@@ -19,6 +20,7 @@ import com.eateum.eateumbe.fridges.repository.FridgeMapper;
 public class FridgeServiceImpl implements FridgeService {
 
     private final FridgeMapper fridgeMapper;
+    private final GeminiService geminiService;
 
     //내 냉장고 재료 조회
     @Override
@@ -53,5 +55,17 @@ public class FridgeServiceImpl implements FridgeService {
     @Transactional
     public void deleteItem(String userId, Long itemId) {
         fridgeMapper.deleteItem(userId, itemId);
+    }
+
+    //이미지 재료 추가
+    @Override
+    public List<FridgeResponse> analyzeImage(MultipartFile file) {
+        List<String> detectedNames = geminiService.uploadImg(file);
+
+        if(detectedNames == null || detectedNames.isEmpty()){
+            return List.of();
+        }
+
+        return fridgeMapper.selectItemsByNames(detectedNames);
     }
 }
