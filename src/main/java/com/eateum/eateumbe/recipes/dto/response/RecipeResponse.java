@@ -55,4 +55,24 @@ public class RecipeResponse {
                     .build();
         }
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Status{
+
+        private Long recipeVideoId;
+        private String videoTitle;
+        private String thumbnailUrl;
+
+         public static Status from(Recipe recipe) {
+             return Status.builder()
+                .recipeVideoId(recipe.getRecipeVideoId())
+                .videoTitle(recipe.getVideoTitle())
+                .thumbnailUrl(recipe.getThumbnailUrl())
+                .build();
+         }
+    }
+
 }

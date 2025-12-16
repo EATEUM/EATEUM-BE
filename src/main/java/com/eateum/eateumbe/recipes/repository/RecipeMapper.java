@@ -29,5 +29,18 @@ public interface RecipeMapper {
 
     // 추천 영상 조회
     List<Recipe> selectRelatedVideos(@Param("recipeVideoId") Long recipeVideoId, @Param("categoryId") Long categoryId);
+
+    // 완성한 레시피 목록 조히
+    List<Recipe> selectCompletedRecipes(@Param("userId") Long userId, @Param("size") int size, @Param("offset") int offset);
+
+    // 완성한 레시피 갯수 조회
+    int countCompletedRecipes(@Param("userId") Long userId);
+
+    // 좋아요 레시피 목록 조히
+    List<Recipe> selectLikedRecipes(@Param("userId") Long userId, @Param("size") int size, @Param("offset") int offset);
+
+    // 좋아요 레시피 갯수 조회
+    int countLikedRecipes(@Param("userId") Long userId);
+
 }
 

@@ -195,4 +195,46 @@
         LIMIT 3
     </select>
 
+
+    <!--  완성 레시피 조회   -->
+    <select id="selectCompletedRecipes" resultType="Recipe">
+        SELECT
+            rv.recipe_video_id,
+            rv.video_title,
+            rv.thumbnail_url
+            FROM recipe_video rv
+        JOIN completed_recipe cr ON rv.recipe_video_id = cr.recipe_video_id
+        WHERE cr.user_id = #{userId}
+        ORDER BY cr.completed_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!--  완성 레시피 갯수 계산 -->
+    <select id="countCompletedRecipes" resultType="int">
+        SELECT COUNT(*)
+        FROM completed_recipe
+        WHERE user_id = #{userId}
+    </select>
+
+
+    <!--  좋아요 레시피 조회   -->
+    <select id="selectLikedRecipes" resultType="Recipe">
+        SELECT
+            rv.recipe_video_id,
+            rv.video_title,
+            rv.thumbnail_url
+            FROM recipe_video rv
+        JOIN liked_recipe cr ON rv.recipe_video_id = cr.recipe_video_id
+        WHERE cr.user_id = #{userId}
+        ORDER BY cr.created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- 좋아요 레시피 갯수 계산 -->
+    <select id="countLikedRecipes" resultType="int">
+        SELECT COUNT(*)
+        FROM liked_recipe
+        WHERE user_id = #{userId}
+    </select>
+
 </mapper>

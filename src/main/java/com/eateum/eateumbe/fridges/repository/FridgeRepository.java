@@ -17,9 +17,9 @@ public interface FridgeRepository {
     List<FridgeResponse> selectFridgeListByUserId(
             @Param("userId") String userId,
             //페이징 처리를 할 때 한번에 몇개를 가지고 오고 앞에서 몇개를 건너뛸 것인지 선정하기 위함.
-            //limit(재료를 한 번에 몇개를 가지고 올 것 인가)
+            //size(재료를 한 번에 몇개를 가지고 올 것 인가)
             //offset(앞에서 몇개를 건너 뛰고 시작한 것인가(시작 위치 선정)
-            @Param("limit") int limit,
+            @Param("size") int size,
             @Param("offset")  int offset);
 
     //나의 냉장고 재료가 총 몇개 있는지 확인한다.
