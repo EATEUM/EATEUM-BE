@@ -37,4 +37,10 @@ public interface FridgeMapper {
     //재료 삭제 기능
     void deleteItem(@Param("userId") String userId, @Param("itemId") Long itemId);
 
+    //AI 이미지 -> 모든 재료 이름 조회
+    List<String> selectAllItemNames();
+
+    //AI가 찾은 이름들로 재료 정보 조회
+    List<FridgeResponse> selectItemsByNames(@Param("names") List<String> names);
+
 }
