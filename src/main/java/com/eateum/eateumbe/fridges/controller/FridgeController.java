@@ -1,14 +1,10 @@
 package com.eateum.eateumbe.fridges.controller;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.eateum.eateumbe.global.common.ApiResponse;
 import com.eateum.eateumbe.global.common.PageResponse;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.eateum.eateumbe.fridges.service.FridgeService;
