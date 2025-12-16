@@ -11,7 +11,7 @@ import static com.eateum.eateumbe.fridges.dto.response.FridgeResponse.*;
 
 //MyBatis로 사용하면서 작업을 한다. JPA는 사용 안함
 @Mapper
-public interface FridgeRepository {
+public interface FridgeMapper {
 
     //userId로 조회된 DB에서 재료[번호, 이름, 이미지]를 FridgeResponse에 담아 리스트로 변환
     List<FridgeResponse> selectFridgeListByUserId(

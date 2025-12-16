@@ -1,6 +1,5 @@
 package com.eateum.eateumbe.recipes.controller;
 
-import com.eateum.eateumbe.fridges.dto.response.FridgeResponse;
 import com.eateum.eateumbe.global.common.ApiResponse;
 import com.eateum.eateumbe.global.common.PageResponse;
 import com.eateum.eateumbe.recipes.dto.request.RecipeRequest;

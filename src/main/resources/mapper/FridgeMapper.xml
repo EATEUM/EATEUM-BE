@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.eateum.eateumbe.fridges.repository.FridgeRepository">
+<mapper namespace="com.eateum.eateumbe.fridges.repository.FridgeMapper">
 
     <!--재료 조회 부분
     items 테이블 ID와 fridge_item 테이블 ID를 연결해서
