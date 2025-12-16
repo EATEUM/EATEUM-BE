@@ -30,6 +30,7 @@ public interface FridgeRepository {
 
     //재료 추가(검색)
     void addFridgeItem(@Param("userId") String userId, @Param("itemId") Long itemId);
+
     //단일 재료 상세 조회
     AddItem selectItemDetail(@Param("itemId") Long itemId);
 

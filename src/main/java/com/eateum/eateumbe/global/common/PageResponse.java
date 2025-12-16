@@ -2,8 +2,6 @@ package com.eateum.eateumbe.global.common;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
-
 import java.util.List;
 
 @Getter
@@ -16,7 +14,7 @@ public class PageResponse<T> {
     private int page; // 현재 페이지 번호
     private int size; // 페이당 개수
 
-    public static <T> PageResponse<T> of(List<T> items, int totalItems,  int page, int size) {
+    public static <T> PageResponse<T> of(List<T> items, int totalItems, int page, int size) {
 
         return PageResponse.<T>builder()
                 .items(items)

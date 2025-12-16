@@ -1,12 +1,10 @@
 package com.eateum.eateumbe.fridges.service;
 
 import java.util.List;
-import java.util.Map;
-
 import com.eateum.eateumbe.fridges.dto.request.FridgeRequest;
 import com.eateum.eateumbe.fridges.dto.response.FridgeResponse;
 import com.eateum.eateumbe.fridges.dto.response.FridgeResponse.AddItem;
-import com.eateum.eateumbe.fridges.dto.response.FridgeResponse.FridgeListResponse;
+import com.eateum.eateumbe.global.common.PageResponse;
 
 
 public interface FridgeService {
@@ -17,7 +15,7 @@ public interface FridgeService {
     page - 페이지 번호
     size - 한 페이지에 보여줄 재료 개수
      */
-    FridgeListResponse getMyFridgeItems(String userId, int page, int size);
+    PageResponse<FridgeResponse> getMyFridgeItems(String userId, int page, int size);
 
     /*
     재료 검색

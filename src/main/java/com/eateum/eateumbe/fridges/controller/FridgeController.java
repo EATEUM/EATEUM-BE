@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.eateum.eateumbe.global.common.ApiResponse;
+import com.eateum.eateumbe.global.common.PageResponse;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,7 @@ public class FridgeController {
     required = false로 오류는 확인하지 않고 넘어간다.
      */
     @GetMapping
-    public ApiResponse<FridgeListResponse> getFridge(
+    public ApiResponse<PageResponse<FridgeResponse>> getFridge(
             @RequestParam(value = "userId", required = false) String userId,
             //기본 값 "1"로 설정해서 재료가 담긴 페이지 1은 기본으로 둔다.
             @RequestParam(value = "page", defaultValue = "1") int page,
@@ -42,7 +43,7 @@ public class FridgeController {
             userId = "test-user-id";
         }
 
-        FridgeListResponse result = fridgeService.getMyFridgeItems(userId, page, size);
+        PageResponse<FridgeResponse> result = fridgeService.getMyFridgeItems(userId, page, size);
 
         return ApiResponse.success(result);
     }

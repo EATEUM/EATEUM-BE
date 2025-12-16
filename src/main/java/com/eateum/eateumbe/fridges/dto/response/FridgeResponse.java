@@ -24,11 +24,4 @@ public class FridgeResponse {
         private String itemImg;
     }
 
-    @Data
-    @AllArgsConstructor
-    public static class FridgeListResponse {
-        private List<FridgeResponse> fridgeItems;
-        private int totalItems;
-    }
-
 }
