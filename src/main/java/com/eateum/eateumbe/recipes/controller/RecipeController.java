@@ -1,6 +1,7 @@
 package com.eateum.eateumbe.recipes.controller;
 
 import com.eateum.eateumbe.global.common.ApiResponse;
+import com.eateum.eateumbe.global.common.PageResponse;
 import com.eateum.eateumbe.recipes.dto.request.RecipeRequest;
 import com.eateum.eateumbe.recipes.dto.response.RecipeDetailResponse;
 import com.eateum.eateumbe.recipes.dto.response.RecipeResponse;
@@ -48,6 +49,23 @@ public class RecipeController {
             includeMemo
         );
         return ApiResponse.success(response);
+    }
+
+    // 임시 유저 ID 획득 메서드 (실제 구현 시 Security Context에서 가져와야 함)
+    private Long getCurrentUserId() {
+        return 1L; // 임시 테스트용
+    }
+
+    @GetMapping("/my")
+    public ApiResponse<PageResponse<RecipeResponse.Status>> getStatusRecipes(
+            @RequestParam("status") String status,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "9") int size
+    ) {
+        Long userId = getCurrentUserId();
+
+        PageResponse<RecipeResponse.Status> result =  recipeService.getStatusRecipes(userId, status, page, size);
+        return ApiResponse.success(result);
     }
 
 }

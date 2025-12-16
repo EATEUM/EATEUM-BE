@@ -1,7 +1,5 @@
 package com.eateum.eateumbe.fridges.dto.response;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -22,13 +20,6 @@ public class FridgeResponse {
         private Long itemId;
         private String itemName;
         private String itemImg;
-    }
-
-    @Data
-    @AllArgsConstructor
-    public static class FridgeListResponse {
-        private List<FridgeResponse> fridgeItems;
-        private int totalItems;
     }
 
 }

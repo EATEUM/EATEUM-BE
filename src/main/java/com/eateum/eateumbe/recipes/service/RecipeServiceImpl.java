@@ -1,5 +1,6 @@
 package com.eateum.eateumbe.recipes.service;
 
+import com.eateum.eateumbe.global.common.PageResponse;
 import com.eateum.eateumbe.memo.dto.response.MemoResponse;
 import com.eateum.eateumbe.memo.service.MemoService;
 import com.eateum.eateumbe.recipes.domain.Recipe;
@@ -24,7 +25,7 @@ public class RecipeServiceImpl implements RecipeService {
     private final RagService ragService;
     private final MemoService memoService;
 
-    // 💡 임시 유저 ID 획득 메서드 (실제 구현 시 Security Context에서 가져와야 함)
+    // 임시 유저 ID 획득 메서드 (실제 구현 시 Security Context에서 가져와야 함)
     private Long getCurrentUserId() {
         return 1L; // 임시 테스트용
     }
@@ -102,5 +103,36 @@ public class RecipeServiceImpl implements RecipeService {
                 Collections.emptyList();
 
         return RecipeDetailResponse.from(recipe, isLiked, isCompleted, relatedVideos, memos);
+    }
+
+    // page 를 -> offset(건너뛸 개수)로 변환
+    @Override
+    public PageResponse<RecipeResponse.Status> getStatusRecipes(Long userId, String status, int page, int size) {
+        int offset = (page - 1) * size;
+
+        List<Recipe> recipes;
+        int totalItems;
+
+        switch (status.toLowerCase()) {
+            case "completed" -> {
+                recipes = recipeMapper.selectCompletedRecipes(userId, size, offset);
+                totalItems = recipeMapper.countCompletedRecipes(userId);
+            }
+            case "liked" -> {
+                recipes = recipeMapper.selectLikedRecipes(userId, size, offset);
+                totalItems = recipeMapper.countLikedRecipes(userId);
+            }
+            default -> {
+                recipes = Collections.emptyList();
+                totalItems = 0;
+            }
+        }
+
+        List<RecipeResponse.Status> items = recipes.stream()
+                .map(RecipeResponse.Status::from)
+                .collect(Collectors.toList());
+
+        return PageResponse.of(items, totalItems, page, size);
+
     }
 }
