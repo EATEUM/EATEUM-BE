@@ -57,7 +57,7 @@ public class FridgeServiceImpl implements FridgeService {
         fridgeMapper.deleteItem(userId, itemId);
     }
 
-    //이미지 재료 추가
+    //이미지 재료들을 DB와 맞는지 조회
     @Override
     public List<FridgeResponse> analyzeImage(MultipartFile file) {
         List<String> detectedNames = geminiService.uploadImg(file);
@@ -67,5 +67,13 @@ public class FridgeServiceImpl implements FridgeService {
         }
 
         return fridgeMapper.selectItemsByNames(detectedNames);
+    }
+    //이미지 인식 후 재료 추가
+    @Override
+    @Transactional
+    public void addItems(String userId, List<Long> itemIds) {
+        if(itemIds != null || !itemIds.isEmpty()){
+            fridgeMapper.addFridgeItems(userId, itemIds);
+        }
     }
 }

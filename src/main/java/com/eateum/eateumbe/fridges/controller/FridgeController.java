@@ -2,17 +2,18 @@ package com.eateum.eateumbe.fridges.controller;
 
 import java.util.List;
 
-import com.eateum.eateumbe.global.common.ApiResponse;
-import com.eateum.eateumbe.global.common.PageResponse;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.eateum.eateumbe.fridges.service.FridgeService;
 import com.eateum.eateumbe.fridges.dto.request.FridgeRequest;
 import com.eateum.eateumbe.fridges.dto.response.FridgeResponse;
-import org.springframework.web.multipart.MultipartFile;
-
+import com.eateum.eateumbe.global.common.ApiResponse;
+import com.eateum.eateumbe.global.common.PageResponse;
 import static com.eateum.eateumbe.fridges.dto.response.FridgeResponse.*;
+
 
 
 @RestController
@@ -88,7 +89,7 @@ public class FridgeController {
     }
 
     /*
-    AI 이미지 인식 및 재료 추출 API
+    AI 이미지 인식 및 재료 추출 API(DB 조회용)
      */
     @PostMapping("/image-recognition")
     public ApiResponse<List<FridgeResponse>> recognizeItems(
@@ -102,5 +103,18 @@ public class FridgeController {
 
         return new ApiResponse<>(true, "이미지 분석 및 재료 매칭 완료", result);
     }
+    /*
+    선택된 재료 일괄 추가 API
+     */
+    @PostMapping("/add-items")
+    public ApiResponse<Void> addFridgeItems(
+            @RequestBody List<Long> itemIds) {
+
+        String userId = "test-user-id";
+
+        fridgeService.addItems(userId, itemIds);
+        return new ApiResponse<>(true, "선택한 재료들이 냉장고에 추가되었습니다.", null);
+    }
+
 
 }
