@@ -4,7 +4,9 @@ import com.eateum.eateumbe.recipes.domain.Recipe;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface RecipeMapper {
@@ -41,6 +43,12 @@ public interface RecipeMapper {
 
     // 좋아요 레시피 갯수 조회
     int countLikedRecipes(@Param("userId") Long userId);
+
+    // 6개월 완성 레시피 통게
+    List<Map<String, Object>> selectMonthlyCompletedStats(@Param("userId") Long userId, @Param("startDate") LocalDateTime startDate);
+
+    // 좋아요 카테고리 비율 통계
+    List<Map<String, Object>> selectLikedCategoryStats(@Param("userId") Long userId);
 
 }
 

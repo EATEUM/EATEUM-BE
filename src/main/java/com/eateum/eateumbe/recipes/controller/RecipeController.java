@@ -3,10 +3,12 @@ package com.eateum.eateumbe.recipes.controller;
 import com.eateum.eateumbe.global.common.ApiResponse;
 import com.eateum.eateumbe.global.common.PageResponse;
 import com.eateum.eateumbe.recipes.dto.request.RecipeRequest;
+import com.eateum.eateumbe.recipes.dto.response.RecipeDashboardResponse;
 import com.eateum.eateumbe.recipes.dto.response.RecipeDetailResponse;
 import com.eateum.eateumbe.recipes.dto.response.RecipeResponse;
 import com.eateum.eateumbe.recipes.service.RecipeService;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -68,4 +70,10 @@ public class RecipeController {
         return ApiResponse.success(result);
     }
 
+    @GetMapping("my/dashboard")
+    public ApiResponse<RecipeDashboardResponse> getDashboardRecipes() {
+        Long userId = getCurrentUserId();
+        RecipeDashboardResponse response = recipeService.getRecipeDashboard(userId);
+        return ApiResponse.success(response);
+    }
 }

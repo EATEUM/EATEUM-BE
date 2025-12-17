@@ -18,7 +18,8 @@ public class Recipe {
     private List<RecipeItem> items;
     private List<RecipeStep> steps;
 
-    private Long categoryId; // 관련 영상 조회?? TODO : 수정하기
+    private Long categoryId;
+    private String categoryName;
 
     @Getter
     @NoArgsConstructor
