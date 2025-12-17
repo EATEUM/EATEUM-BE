@@ -68,46 +68,46 @@ public class UserServiceImpl implements UserService {
     /**
      * 액세스토큰 재발행
      */
-//    @Override
-//    public LoginResponse reissue(String refreshToken, HttpServletResponse response) {
-//
-//        if(refreshToken == null){
-//            throw new RuntimeException("REFRESH_TOKEN_MISSING");
-//        }
-//
-//        //refreshToken 검증 + claims 추출
-//        Claims claims = jwtProvider.parseRefreshClaims(refreshToken);
-//
-//        String userId = String.valueOf(claims.get("userId"));
-//        String name = String.valueOf(claims.get("name"));
-//
-//        //Redis에 저장된 refreshToken 조회
-//        String savedRefreshToken = refreshTokenService.find(userId);
-//
-//        log.info("refreshToken from cookie = {}", refreshToken);
-//        log.info("refreshToken from redis  = {}", savedRefreshToken);
-//
-//        //Redis에 없거나 값이 다르면 실패
-//        if(savedRefreshToken == null || !savedRefreshToken.equals(refreshToken)){
-//            throw new RuntimeException("REFRESH_TOKEN_INVALID");
-//        }
-//
-//        Map<String, Object> newClaims = Map.of(
-//                "userId", userId,
-//                "name", name);
-//
-//        //새 AccessToken 생성
-//        String newAccessToken = jwtProvider.createAccessToken(newClaims);
-//
-//        //새 RefreshToken 생성
-//        String newRefreshToken = jwtProvider.createRefreshToken(newClaims);
-//
-//        //쿠키 갱신
-//        saveRefreshToken(userId, newRefreshToken, response);
-//
-//        //AccessToken만 반환
-//        return new LoginResponse(newAccessToken);
-//    }
+    @Override
+    public LoginResponse reissue(String refreshToken, HttpServletResponse response) {
+
+        if(refreshToken == null){
+            throw new RuntimeException("REFRESH_TOKEN_MISSING");
+        }
+
+        //refreshToken 검증 + claims 추출
+        Claims claims = jwtProvider.parseRefreshClaims(refreshToken);
+
+        String userId = String.valueOf(claims.get("userId"));
+        String name = String.valueOf(claims.get("name"));
+
+        //Redis에 저장된 refreshToken 조회
+        String savedRefreshToken = refreshTokenService.find(userId);
+
+        log.info("refreshToken from cookie = {}", refreshToken);
+        log.info("refreshToken from redis  = {}", savedRefreshToken);
+
+        //Redis에 없거나 값이 다르면 실패
+        if(savedRefreshToken == null || !savedRefreshToken.equals(refreshToken)){
+            throw new RuntimeException("REFRESH_TOKEN_INVALID");
+        }
+
+        Map<String, Object> newClaims = Map.of(
+                "userId", userId,
+                "name", name);
+
+        //새 AccessToken 생성
+        String newAccessToken = jwtProvider.createAccessToken(newClaims);
+
+        //새 RefreshToken 생성
+        String newRefreshToken = jwtProvider.createRefreshToken(newClaims);
+
+        //쿠키 갱신
+        saveRefreshToken(userId, newRefreshToken, response);
+
+        //AccessToken만 반환
+        return new LoginResponse(newAccessToken);
+    }
 
     private void saveRefreshToken(String userId, String refreshToken, HttpServletResponse response) {
 
