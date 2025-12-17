@@ -86,5 +86,17 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 
     }
 
+    /**
+     * 헤더에 AccessToken이 없어야 하는 API는 JWT 검증 필터 자체에서 제외
+     */
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+
+        return path.startsWith("/user/login")
+                || path.startsWith("/user/signup")
+                || path.startsWith("/user/reissue");
+
+    }
 }
 

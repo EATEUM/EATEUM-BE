@@ -1,8 +1,6 @@
 package com.eateum.eateumbe.global.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -74,7 +72,7 @@ public class JwtProvider {
     }
 
     /**
-     * 토큰 검증 + Claim 반환
+     * 토큰 검증 + Claim 반환 (필터용)
      */
     public Claims parseClaims(String token) {
         return Jwts.parserBuilder()
@@ -84,4 +82,17 @@ public class JwtProvider {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
+    /**
+     * RefreshToken 전용 검증 (Service용)
+     */
+//    public Claims parseRefreshClaims(String refreshToken) {
+//        try{
+//            return parseClaims(refreshToken);
+//        } catch (ExpiredJwtException e) {
+//            throw new RuntimeException("REFRESH_TOKEN_EXPIRED");
+//        } catch (JwtException e) {
+//            throw new RuntimeException("REFRESH_TOKEN_INVALID");
+//        }
+//    }
 }
