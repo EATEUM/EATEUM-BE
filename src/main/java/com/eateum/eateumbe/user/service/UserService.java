@@ -12,6 +12,6 @@ public interface UserService {
     LoginResponse login(LoginRequest request, HttpServletResponse response);
     
     //엑세스토큰 재발행
-//    LoginResponse reissue(String refreshToken, HttpServletResponse response);
+    LoginResponse reissue(String refreshToken, HttpServletResponse response);
 
 }

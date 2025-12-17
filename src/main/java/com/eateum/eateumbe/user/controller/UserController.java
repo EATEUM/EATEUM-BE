@@ -21,11 +21,12 @@ public class UserController {
         return userService.login(request, response);
     }
 
-//    @PostMapping("/reissue")
-//    public LoginResponse reissue(@CookieValue("refreshToken") String refreshToken, HttpServletResponse response){
-//        return userService.reissue(refreshToken, response);
-//    }
-//
+    @PostMapping("/reissue")
+    public LoginResponse reissue(@CookieValue("refreshToken") String refreshToken, HttpServletResponse response){
+        return userService.reissue(refreshToken, response);
+    }
+
+    //AccessToken 인증 테스트용
 //    @GetMapping("/me")
 //    public String me(@AuthenticationPrincipal String userId) {
 //        return "내 userId는 " + userId + " 입니다.";
