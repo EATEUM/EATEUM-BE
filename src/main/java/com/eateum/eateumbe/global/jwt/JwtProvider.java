@@ -86,13 +86,13 @@ public class JwtProvider {
     /**
      * RefreshToken 전용 검증 (Service용)
      */
-//    public Claims parseRefreshClaims(String refreshToken) {
-//        try{
-//            return parseClaims(refreshToken);
-//        } catch (ExpiredJwtException e) {
-//            throw new RuntimeException("REFRESH_TOKEN_EXPIRED");
-//        } catch (JwtException e) {
-//            throw new RuntimeException("REFRESH_TOKEN_INVALID");
-//        }
-//    }
+    public Claims parseRefreshClaims(String refreshToken) {
+        try{
+            return parseClaims(refreshToken);
+        } catch (ExpiredJwtException e) {
+            throw new RuntimeException("REFRESH_TOKEN_EXPIRED");
+        } catch (JwtException e) {
+            throw new RuntimeException("REFRESH_TOKEN_INVALID");
+        }
+    }
 }
