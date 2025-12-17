@@ -1,7 +1,6 @@
 package com.eateum.eateumbe.recipes.dto.response;
 
 import com.eateum.eateumbe.global.constant.RecipeCategory;
-import com.eateum.eateumbe.recipes.domain.Recipe;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
