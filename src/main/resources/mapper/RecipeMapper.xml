@@ -29,6 +29,7 @@
         <result property="videoUrl" column="video_url"/>
         <result property="duration" column="duration"/>
         <result property="categoryId" column="category_id"/>
+        <result property="categoryName" column="category_name"/>
         <collection property="steps" ofType="com.eateum.eateumbe.recipes.domain.Recipe$RecipeStep">
             <result property="stepNumber" column="step_number"/>
             <result property="stepTitle" column="step_title"/>
@@ -235,6 +236,30 @@
         SELECT COUNT(*)
         FROM liked_recipe
         WHERE user_id = #{userId}
+    </select>
+
+    <!--  월별 완료 레시피 대시보드   -->
+    <select id="selectMonthlyCompletedStats" resultType="map">
+        SELECT
+            MONTH(completed_at) as month,
+            COUNT(*) as count
+        FROM completed_recipe
+        WHERE user_id = #{userId}
+          AND completed_at >= #{startDate}
+        GROUP BY MONTH(completed_at)
+        ORDER BY month ASC
+    </select>
+
+    <!--  좋아요 레시피 비율 대시보드   -->
+    <select id="selectLikedCategoryStats" resultType="map">
+        SELECT
+            c.category_name as categoryName,
+            COUNT(*) as count
+        FROM liked_recipe lr
+        JOIN recipe_video rv ON lr.recipe_video_id = rv.recipe_video_id
+        JOIN category c ON rv.category_id = c.category_id
+        WHERE lr.user_id = #{userId}
+        GROUP BY c.category_name
     </select>
 
 </mapper>
