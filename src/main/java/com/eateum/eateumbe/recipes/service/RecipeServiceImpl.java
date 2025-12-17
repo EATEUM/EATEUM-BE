@@ -1,10 +1,12 @@
 package com.eateum.eateumbe.recipes.service;
 
 import com.eateum.eateumbe.global.common.PageResponse;
+import com.eateum.eateumbe.global.constant.RecipeCategory;
 import com.eateum.eateumbe.memo.dto.response.MemoResponse;
 import com.eateum.eateumbe.memo.service.MemoService;
 import com.eateum.eateumbe.recipes.domain.Recipe;
 import com.eateum.eateumbe.recipes.dto.request.RecipeRequest;
+import com.eateum.eateumbe.recipes.dto.response.RecipeDashboardResponse;
 import com.eateum.eateumbe.recipes.dto.response.RecipeDetailResponse;
 import com.eateum.eateumbe.recipes.dto.response.RecipeResponse;
 import com.eateum.eateumbe.recipes.repository.RecipeMapper;
@@ -12,8 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -134,5 +136,68 @@ public class RecipeServiceImpl implements RecipeService {
 
         return PageResponse.of(items, totalItems, page, size);
 
+    }
+
+    @Override
+    public RecipeDashboardResponse getRecipeDashboard(Long userId) {
+
+        // 6개월
+        int period = 6;
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startDate = now.minusMonths(period - 1);
+
+        long completedCount = recipeMapper.countCompletedRecipes(userId);
+        long likedCount = recipeMapper.countLikedRecipes(userId);
+
+        // 원별 완료 통계 부분
+        List<Map<String, Object>> monthlyCompletedRawData = recipeMapper.selectMonthlyCompletedStats(userId, startDate);
+
+        Map<Integer, Long> monthlyCompletedMap = new HashMap<>();
+        for (Map<String, Object> data : monthlyCompletedRawData) {
+            int month = ((Number) data.get("month")).intValue();
+            long count = ((Number) data.get("count")).longValue();
+            monthlyCompletedMap.put(month, count);
+        }
+
+        List<RecipeDashboardResponse.MonthlyCount> monthlyCompletedStats = new ArrayList<>();
+
+        for (int i = 0; i < period; i++) {
+            LocalDateTime targetDate = startDate.plusMonths(i);
+            int targetMonth = targetDate.getMonthValue(); //달(month) 숫자만 출력
+            long count = monthlyCompletedMap.getOrDefault(targetMonth, 0L);
+
+            monthlyCompletedStats.add(RecipeDashboardResponse.MonthlyCount.from(targetMonth, count));
+        }
+
+        // 카테고리별 좋아요 통계 부분
+        List<Map<String, Object>> likedCategoryRawData = recipeMapper.selectLikedCategoryStats(userId);
+
+        Map<String, Long> likedCategoryMap = new HashMap<>();
+        for (Map<String, Object> data : likedCategoryRawData) {
+            String categoryName = (String) data.get("categoryName");
+            long count = ((Number) data.get("count")).longValue();
+            likedCategoryMap.put(categoryName, count);
+        }
+
+        Map<String, Integer> likedCategoryPercent = new HashMap<>();
+
+        for (RecipeCategory categoryEnum : RecipeCategory.values()) {
+            long count = likedCategoryMap.getOrDefault(categoryEnum.getKrCategory(), 0L);
+
+            int percent = 0;
+            if (likedCount > 0) {
+                percent = (int) ((count * 100.0) / likedCount);
+            }
+
+            likedCategoryPercent.put(categoryEnum.getKrCategory(), percent);
+        }
+
+        return RecipeDashboardResponse.from(
+                completedCount,
+                likedCount,
+                period,
+                monthlyCompletedStats,
+                likedCategoryPercent
+        );
     }
 }
