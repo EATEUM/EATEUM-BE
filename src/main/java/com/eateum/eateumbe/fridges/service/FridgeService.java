@@ -39,4 +39,8 @@ public interface FridgeService {
     이미지 인식 후 DB에 있는 재료 목록 반환
      */
     List<FridgeResponse> analyzeImage(MultipartFile image);
+    /*
+    선택된 여러 재료를 한 번에 추가
+     */
+    void addItems(String userId, List<Long> itemIds);
 }

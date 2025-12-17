@@ -39,9 +39,9 @@
     </insert>
     <select id="selectItemDetail" resultType="com.eateum.eateumbe.fridges.dto.response.FridgeResponse$AddItem">
         SELECT
-            item_id as itemId,
-            item_name as itemName,
-            item_img as itemImg
+            item_id,
+            item_name,
+            item_img
         FROM items
         WHERE item_id = #{itemId}
     </select>
@@ -54,17 +54,29 @@
     </delete>
 
 
-<!--    AI 이미지 인식 재료 추가-->
+<!--    AI 이미지 인식 후 DB에서 재료 조회-->
     <select id="selectItemsByNames" resultType="com.eateum.eateumbe.fridges.dto.response.FridgeResponse">
         SELECT
-        item_id as itemId,
-        item_name as itemName,
-        item_img as itemImg
+        item_id,
+        item_name,
+        item_img
         FROM items
         WHERE item_name IN
         <foreach item="name" collection="names" open="(" separator="," close=")">
             #{name}
         </foreach>
     </select>
+<!--    DB에서 재료를 조회 하고 사용자가 선택한 재료 추가-->
+    <insert id="addFridgeItems">
+        INSERT INTO fridge_item(
+                                user_id,
+                                item_id,
+                                created_at
+        )
+        VALUES
+            <foreach collection="itemIds" item="itemId" separator=",">
+                (#{userId}, #{itemId}, NOW())
+            </foreach>
+    </insert>
 
 </mapper>

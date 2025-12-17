@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,8 +31,8 @@ public class GeminiService {
 
     private final ObjectMapper objectMapper;
 
-    // WebClient 오류로 RestTemplate 사용
-    private final RestTemplate restTemplate = new RestTemplate();
+    // WebClient 오류로 RestClient 사용
+    private final RestClient restClient;
 
     public List<String> uploadImg(MultipartFile file) {
         try {
@@ -44,14 +45,14 @@ public class GeminiService {
             String urlString = safeApiUrl + "?key=" + safeApiKey;
 
             URI uri = URI.create(urlString);
-            log.info("Gemini 요청 URI (RestTemplate): {}", uri);
+            log.info("Gemini 요청 URI (RestClient): {}", uri);
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
-
-            String response = restTemplate.postForObject(uri, entity, String.class);
+            String response = restClient.post()
+                    .uri(uri)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(requestBody)
+                    .retrieve()
+                    .body(String.class);
 
             return parseGeminiResponse(response);
 
