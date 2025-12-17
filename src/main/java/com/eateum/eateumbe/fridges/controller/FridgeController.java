@@ -4,6 +4,7 @@ import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,24 +26,19 @@ public class FridgeController {
 
     /*
     내 냉장고 조회(무한 스크롤 방식)
-    ResponseEntity에 userId를 통해 재료들을 담는다.
     fridges?userId="userId"로 주소를 받아온다.
-    required = false로 오류는 확인하지 않고 넘어간다.
      */
     @GetMapping
     public ApiResponse<PageResponse<FridgeResponse>> getFridge(
-            @RequestParam(value = "userId", required = false) String userId,
+            @AuthenticationPrincipal String userId,
             //기본 값 "1"로 설정해서 재료가 담긴 페이지 1은 기본으로 둔다.
             @RequestParam(value = "page", defaultValue = "1") int page,
             //1페이지 보여줄 개수 20개
             @RequestParam(value = "size", defaultValue = "20") int size) {
 
-        //테스트용 ID 설정
-        if(userId == null) {
-            userId = "test-user-id";
-        }
+        String safeUserId = resolveUserId(userId);
 
-        PageResponse<FridgeResponse> result = fridgeService.getMyFridgeItems(userId, page, size);
+        PageResponse<FridgeResponse> result = fridgeService.getMyFridgeItems(safeUserId, page, size);
 
         return ApiResponse.success(result);
     }
@@ -64,11 +60,13 @@ public class FridgeController {
      */
     @PostMapping
     public ApiResponse<AddItem> addItem(
-        @RequestBody FridgeRequest request
+            @AuthenticationPrincipal String userId,
+            @RequestBody FridgeRequest request
     ) {
-        String userId = "test-user-id"; //테스트 아이디 임시 추가
 
-        AddItem addedItem = fridgeService.addItem(userId, request);
+        String safeUserId = resolveUserId(userId);
+
+        AddItem addedItem = fridgeService.addItem(safeUserId, request);
 
         return new ApiResponse<>(true, "냉장고에 재료가 추가되었습니다.", addedItem);
     }
@@ -78,12 +76,13 @@ public class FridgeController {
      */
     @DeleteMapping
     public ApiResponse<Void> deleteItem(
+            @AuthenticationPrincipal String userId,
             @RequestParam("itemId") Long itemId
     ) {
 
-        String userId = "test-user-id"; //테스트 아이디 임시 추가
+        String safeUserId = resolveUserId(userId);
 
-        fridgeService.deleteItem(userId, itemId);
+        fridgeService.deleteItem(safeUserId, itemId);
 
         return new ApiResponse<>(true, "재료 삭제 완료", null);
     }
@@ -108,12 +107,22 @@ public class FridgeController {
      */
     @PostMapping("/add-items")
     public ApiResponse<Void> addFridgeItems(
+            @AuthenticationPrincipal String userId,
             @RequestBody List<Long> itemIds) {
 
-        String userId = "test-user-id";
+        String safeUserId = resolveUserId(userId);
 
-        fridgeService.addItems(userId, itemIds);
+        fridgeService.addItems(safeUserId, itemIds);
+
         return new ApiResponse<>(true, "선택한 재료들이 냉장고에 추가되었습니다.", null);
+    }
+
+    //비회원 식별자 변환 로직
+    private String resolveUserId(String userId) {
+        if(userId == null || userId.equals("anonymousUser")) {
+            userId = "guest";
+        }
+        return userId;
     }
 
 

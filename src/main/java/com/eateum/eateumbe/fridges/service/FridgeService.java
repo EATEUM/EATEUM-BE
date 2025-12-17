@@ -1,11 +1,13 @@
 package com.eateum.eateumbe.fridges.service;
 
 import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
+
 import com.eateum.eateumbe.fridges.dto.request.FridgeRequest;
 import com.eateum.eateumbe.fridges.dto.response.FridgeResponse;
 import com.eateum.eateumbe.fridges.dto.response.FridgeResponse.AddItem;
 import com.eateum.eateumbe.global.common.PageResponse;
-import org.springframework.web.multipart.MultipartFile;
 
 
 public interface FridgeService {
