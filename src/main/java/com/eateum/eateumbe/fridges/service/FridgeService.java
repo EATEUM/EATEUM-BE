@@ -5,6 +5,7 @@ import com.eateum.eateumbe.fridges.dto.request.FridgeRequest;
 import com.eateum.eateumbe.fridges.dto.response.FridgeResponse;
 import com.eateum.eateumbe.fridges.dto.response.FridgeResponse.AddItem;
 import com.eateum.eateumbe.global.common.PageResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 
 public interface FridgeService {
@@ -33,4 +34,9 @@ public interface FridgeService {
     재료 삭제
      */
     void deleteItem(String userId, Long itemId);
+
+    /*
+    이미지 인식 후 DB에 있는 재료 목록 반환
+     */
+    List<FridgeResponse> analyzeImage(MultipartFile image);
 }

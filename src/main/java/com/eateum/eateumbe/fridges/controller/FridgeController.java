@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import com.eateum.eateumbe.fridges.service.FridgeService;
 import com.eateum.eateumbe.fridges.dto.request.FridgeRequest;
 import com.eateum.eateumbe.fridges.dto.response.FridgeResponse;
+import org.springframework.web.multipart.MultipartFile;
+
 import static com.eateum.eateumbe.fridges.dto.response.FridgeResponse.*;
 
 
@@ -83,6 +85,22 @@ public class FridgeController {
         fridgeService.deleteItem(userId, itemId);
 
         return new ApiResponse<>(true, "재료 삭제 완료", null);
+    }
+
+    /*
+    AI 이미지 인식 및 재료 추출 API
+     */
+    @PostMapping("/image-recognition")
+    public ApiResponse<List<FridgeResponse>> recognizeItems(
+            @RequestPart("file") MultipartFile file
+    ){
+        List<FridgeResponse> result = fridgeService.analyzeImage(file);
+
+        if(result.isEmpty()) {
+            return new ApiResponse<>(true, "이미지에서 일치하는 재료를 찾지 못했습니다.", result);
+        }
+
+        return new ApiResponse<>(true, "이미지 분석 및 재료 매칭 완료", result);
     }
 
 }

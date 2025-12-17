@@ -2,9 +2,12 @@ package com.eateum.eateumbe.fridges.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class FridgeResponse {
 
     //단일 재료 정보
@@ -15,6 +18,7 @@ public class FridgeResponse {
 
     //재료 추가
     @Data
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class AddItem{
         private Long itemId;
