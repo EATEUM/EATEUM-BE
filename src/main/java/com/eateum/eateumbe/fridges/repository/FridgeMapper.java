@@ -39,8 +39,9 @@ public interface FridgeMapper {
 
     //AI 이미지 -> 모든 재료 이름 조회
     List<String> selectAllItemNames();
-
     //AI가 찾은 이름들로 재료 정보 조회
     List<FridgeResponse> selectItemsByNames(@Param("names") List<String> names);
+    //AI 이미지를 통해 재료 조회 후, 사용자 선택으로 재료들을 여러 개 추가 하기 위함
+    void addFridgeItems(@Param("userId") String userId, @Param("itemIds") List<Long> itemIds);
 
 }
