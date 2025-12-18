@@ -1,5 +1,6 @@
 package com.eateum.eateumbe.user.service;
 
+import com.eateum.eateumbe.global.error.ApiException;
 import com.eateum.eateumbe.global.jwt.JwtProperties;
 import com.eateum.eateumbe.global.jwt.JwtProvider;
 import com.eateum.eateumbe.global.redis.RefreshTokenService;
@@ -12,6 +13,7 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -41,12 +43,12 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.findByEmail(request.getEmail());
 
         if(user == null){
-            throw new RuntimeException("USER_NOT_FOUND");
+            throw new ApiException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다.");
         }
 
         //비밀번호 검증
         if(!passwordEncoder.matches(request.getPassword(),user.getPassword())){
-            throw new RuntimeException("PASSWORD_NOT_MATCH");
+            throw new ApiException(HttpStatus.UNAUTHORIZED, " 비밀번호가 일치하지 않습니다.");
         }
 
         //JWT payload 생성
@@ -71,7 +73,7 @@ public class UserServiceImpl implements UserService {
     public LoginResponse reissue(String refreshToken, HttpServletResponse response) {
 
         if(refreshToken == null){
-            throw new RuntimeException("REFRESH_TOKEN_MISSING");
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 없습니다.");
         }
 
         //refreshToken 검증 + claims 추출
@@ -87,7 +89,7 @@ public class UserServiceImpl implements UserService {
 
         //Redis에 없거나 값이 다르면 실패
         if(savedRefreshToken == null || !savedRefreshToken.equals(refreshToken)){
-            throw new RuntimeException("REFRESH_TOKEN_INVALID");
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 유효하지 않습니다.");
         }
 
         Map<String, Object> newClaims = Map.of("userId", userId);
