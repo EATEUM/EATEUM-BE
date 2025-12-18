@@ -1,7 +1,6 @@
 package com.eateum.eateumbe.user.repository;
 
 import com.eateum.eateumbe.user.domain.User;
-import com.eateum.eateumbe.user.service.UserService;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
