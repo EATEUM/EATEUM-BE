@@ -26,6 +26,13 @@ public class UserController {
         return userService.reissue(refreshToken, response);
     }
 
+    @PostMapping("/logout")
+    public void logout(
+            @CookieValue(value = "refreshToken", required = false) String refreshToken,
+            HttpServletResponse response){
+        userService.logout(refreshToken, response);
+    }
+
     //AccessToken 인증 테스트용
 //    @GetMapping("/me")
 //    public String me(@AuthenticationPrincipal String userId) {
