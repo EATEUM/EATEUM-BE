@@ -1,9 +1,7 @@
 package com.eateum.eateumbe.user.service;
 
-import com.eateum.eateumbe.user.domain.User;
 import com.eateum.eateumbe.user.dto.request.LoginRequest;
 import com.eateum.eateumbe.user.dto.response.LoginResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 public interface UserService {
@@ -13,5 +11,8 @@ public interface UserService {
     
     //엑세스토큰 재발행
     LoginResponse reissue(String refreshToken, HttpServletResponse response);
+
+    //로그아웃
+    void logout(String refreshToken, HttpServletResponse response);
 
 }

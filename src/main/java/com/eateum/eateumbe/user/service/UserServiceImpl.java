@@ -52,7 +52,6 @@ public class UserServiceImpl implements UserService {
         //JWT payload 생성
         Map<String,Object> claims = new HashMap<>();
         claims.put("userId", user.getUserId());
-        claims.put("name", user.getName());
 
         //토큰 생성
         String accessToken = jwtProvider.createAccessToken(claims);
@@ -79,7 +78,6 @@ public class UserServiceImpl implements UserService {
         Claims claims = jwtProvider.parseRefreshClaims(refreshToken);
 
         String userId = String.valueOf(claims.get("userId"));
-        String name = String.valueOf(claims.get("name"));
 
         //Redis에 저장된 refreshToken 조회
         String savedRefreshToken = refreshTokenService.find(userId);
@@ -92,9 +90,7 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("REFRESH_TOKEN_INVALID");
         }
 
-        Map<String, Object> newClaims = Map.of(
-                "userId", userId,
-                "name", name);
+        Map<String, Object> newClaims = Map.of("userId", userId);
 
         //새 AccessToken 생성
         String newAccessToken = jwtProvider.createAccessToken(newClaims);
@@ -109,6 +105,9 @@ public class UserServiceImpl implements UserService {
         return new LoginResponse(newAccessToken);
     }
 
+    /**
+     * RefreshToken을 Redis와 쿠키에 저장
+     */
     private void saveRefreshToken(String userId, String refreshToken, HttpServletResponse response) {
 
         //Redis에 저장
@@ -126,6 +125,41 @@ public class UserServiceImpl implements UserService {
 
         response.addHeader("Set-Cookie", cookie.toString());
 
+    }
+
+    /**
+     * 로그아웃
+     * Redis와 Cookie에서 RefreshToken 삭제
+     */
+    @Override
+    public void logout(String refreshToken, HttpServletResponse response) {
+
+        //쿠키가 없으면 그냥 쿠키 삭제만 실행
+        if (refreshToken != null) {
+            try {
+                Claims claims = jwtProvider.parseRefreshClaims(refreshToken);
+                String userId = String.valueOf(claims.get("userId"));
+
+                //Redis에서 RefreshToken 삭제
+                refreshTokenService.delete(userId);
+                log.info("[Logout] refresh token deleted. userId={}", userId);
+
+            } catch (Exception e) {
+                //만료 or 위조 토큰이어도 로그아웃은 성공 처리
+                log.warn("[Logout] invalid refresh token");
+            }
+        }
+
+        //RefreshTokenService 쿠키 제거
+        ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(false) // localhost에서는 false
+                .path("/user")
+                .maxAge(0)
+                .sameSite("Lax")
+                .build();
+
+        response.addHeader("Set-Cookie", deleteCookie.toString());
     }
 
 }
