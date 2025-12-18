@@ -9,4 +9,7 @@ public interface UserMapper {
     //로그인
     User findByEmail(String email);
 
+    //프로필 조회
+    User findByUserId(String userId);
+
 }

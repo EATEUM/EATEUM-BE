@@ -3,9 +3,11 @@ package com.eateum.eateumbe.user.controller;
 import com.eateum.eateumbe.global.common.ApiResponse;
 import com.eateum.eateumbe.user.dto.request.LoginRequest;
 import com.eateum.eateumbe.user.dto.response.LoginResponse;
+import com.eateum.eateumbe.user.dto.response.UserInfoResponse;
 import com.eateum.eateumbe.user.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -38,6 +40,11 @@ public class UserController {
             HttpServletResponse response){
         userService.logout(refreshToken, response);
         return ApiResponse.success(null);
+    }
+
+    @GetMapping("/info")
+    public ApiResponse<UserInfoResponse> getUserInfo(@AuthenticationPrincipal String userId) {
+        return ApiResponse.success(userService.getUserInfo(userId));
     }
 
     //AccessToken 인증 테스트용
