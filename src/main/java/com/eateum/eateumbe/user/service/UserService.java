@@ -1,9 +1,11 @@
 package com.eateum.eateumbe.user.service;
 
 import com.eateum.eateumbe.user.dto.request.LoginRequest;
+import com.eateum.eateumbe.user.dto.request.SignupRequest;
 import com.eateum.eateumbe.user.dto.response.LoginResponse;
 import com.eateum.eateumbe.user.dto.response.UserInfoResponse;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface UserService {
 
@@ -18,5 +20,8 @@ public interface UserService {
 
     //프로필 조회
     UserInfoResponse getUserInfo(String userId);
+
+    //회원가입
+    void signup(SignupRequest signupRequest, MultipartFile profileImage);
 
 }
