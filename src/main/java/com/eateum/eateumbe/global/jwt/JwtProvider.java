@@ -1,9 +1,11 @@
 package com.eateum.eateumbe.global.jwt;
 
+import com.eateum.eateumbe.global.error.ApiException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -72,15 +74,22 @@ public class JwtProvider {
     }
 
     /**
-     * 토큰 검증 + Claim 반환 (필터용)
+     * AccessToken 검증 + Claim 반환 (필터용)
      */
     public Claims parseClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .requireIssuer(jwtProperties.getIssuer())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .requireIssuer(jwtProperties.getIssuer())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) { //엑세스 토큰 만료
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "엑세스 토큰이 만료되었습니다.");
+        } catch (JwtException e) { //위조,변조,형식 오류
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "엑세스 토큰이 유효하지 않습니다.");
+        }
     }
 
     /**
@@ -88,11 +97,16 @@ public class JwtProvider {
      */
     public Claims parseRefreshClaims(String refreshToken) {
         try{
-            return parseClaims(refreshToken);
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .requireIssuer(jwtProperties.getIssuer())
+                    .build()
+                    .parseClaimsJws(refreshToken)
+                    .getBody();
         } catch (ExpiredJwtException e) {
-            throw new RuntimeException("REFRESH_TOKEN_EXPIRED");
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 만료되었습니다.");
         } catch (JwtException e) {
-            throw new RuntimeException("REFRESH_TOKEN_INVALID");
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 유효하지 않습니다.");
         }
     }
 }
