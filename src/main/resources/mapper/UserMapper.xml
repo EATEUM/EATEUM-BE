@@ -4,10 +4,19 @@
 
 <mapper namespace="com.eateum.eateumbe.user.repository.UserMapper">
 
+    <!--  로그인  -->
     <select id="findByEmail" resultType="User">
-        SELECT user_id, email, password, name, is_active
+        SELECT user_id, email, password
         FROM users
         WHERE email = #{email} AND is_active = 1
     </select>
+
+    <!--  프로필 조회  -->
+    <select id="findByUserId" resultType="User">
+        SELECT user_id, email, name, profile_image
+        FROM users
+        WHERE user_id = #{userId} AND is_active = 1
+    </select>
+
 
 </mapper>

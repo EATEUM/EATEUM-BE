@@ -4,10 +4,10 @@ import com.eateum.eateumbe.global.error.ApiException;
 import com.eateum.eateumbe.global.jwt.JwtProperties;
 import com.eateum.eateumbe.global.jwt.JwtProvider;
 import com.eateum.eateumbe.global.redis.RefreshTokenService;
-import com.eateum.eateumbe.global.util.AuthorizationExtractor;
 import com.eateum.eateumbe.user.domain.User;
 import com.eateum.eateumbe.user.dto.request.LoginRequest;
 import com.eateum.eateumbe.user.dto.response.LoginResponse;
+import com.eateum.eateumbe.user.dto.response.UserInfoResponse;
 import com.eateum.eateumbe.user.repository.UserMapper;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletResponse;
@@ -162,6 +162,23 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         response.addHeader("Set-Cookie", deleteCookie.toString());
+    }
+
+    /**
+     * 프로필 조회
+     */
+    @Override
+    public UserInfoResponse getUserInfo(String userId) {
+        User user = userMapper.findByUserId(userId);
+        if(user == null){
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "유효하지 않은 사용자 입니다."); //인증된 요청에서 User가 없다는건 불가능
+        }
+
+        return UserInfoResponse.builder()
+                .email(user.getEmail())
+                .name(user.getName())
+                .profileImage(user.getProfileImage())
+                .build();
     }
 
 }

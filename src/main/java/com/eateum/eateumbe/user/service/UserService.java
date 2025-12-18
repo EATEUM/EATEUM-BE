@@ -2,6 +2,7 @@ package com.eateum.eateumbe.user.service;
 
 import com.eateum.eateumbe.user.dto.request.LoginRequest;
 import com.eateum.eateumbe.user.dto.response.LoginResponse;
+import com.eateum.eateumbe.user.dto.response.UserInfoResponse;
 import jakarta.servlet.http.HttpServletResponse;
 
 public interface UserService {
@@ -14,5 +15,8 @@ public interface UserService {
 
     //로그아웃
     void logout(String refreshToken, HttpServletResponse response);
+
+    //프로필 조회
+    UserInfoResponse getUserInfo(String userId);
 
 }
