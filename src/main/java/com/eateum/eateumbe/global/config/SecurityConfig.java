@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/user/signup").permitAll()
                         .requestMatchers(HttpMethod.POST, "/user/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/user/reissue").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user/logout").permitAll()
 
                         //그 외 user는 전부 인증 필요
                         .requestMatchers("/user/**").authenticated()

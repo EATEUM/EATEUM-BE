@@ -49,7 +49,6 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 
             //토큰에 넣어둔 사용자 식별 정보 꺼내기
             String userId = String.valueOf(claims.get("userId"));
-            String name = String.valueOf(claims.get("name"));
 
             //권한을 만듦 (일단 ROLE_USER로 고정)
             var authorites = List.of(new SimpleGrantedAuthority("ROLE_USER"));
@@ -95,8 +94,8 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 
         return path.startsWith("/user/login")
                 || path.startsWith("/user/signup")
-                || path.startsWith("/user/reissue");
-
+                || path.startsWith("/user/reissue")
+                || path.startsWith("/user/logout");
     }
 }
 
