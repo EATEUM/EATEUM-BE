@@ -1,5 +1,6 @@
 package com.eateum.eateumbe.global.security;
 
+import com.eateum.eateumbe.global.error.ApiException;
 import com.eateum.eateumbe.global.jwt.JwtProvider;
 import com.eateum.eateumbe.global.util.AuthorizationExtractor;
 import io.jsonwebtoken.Claims;
@@ -9,6 +10,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -70,17 +72,10 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 
         } catch (JwtException e) {
 
-            //토큰이 이상 or 만료이면 401(인증 실패)
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-
-            e.printStackTrace();
-
-            //Vue가 이해하기 쉬운 메시지 형태로 내려줌
-            response.getWriter().write("""
-                 {"message":"TOKEN_ERROR"}
-            """);
+            throw new ApiException(
+                    HttpStatus.UNAUTHORIZED,
+                    "토큰이 유효하지 않습니다."
+            );
         }
 
     }
