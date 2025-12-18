@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 /**
  * 모든 실패 응답 클래스
@@ -18,6 +19,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(e.getStatus())
                 .body(ApiResponse.fail(e.getMessage()));
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMaxUploadSizeExceeded(
+            MaxUploadSizeExceededException e
+    ) {
+        log.warn("File upload size exceeded", e);
+        return ResponseEntity
+                .badRequest()
+                .body(ApiResponse.fail("파일 용량은 5MB 이하만 가능합니다."));
     }
 
     @ExceptionHandler(Exception.class)

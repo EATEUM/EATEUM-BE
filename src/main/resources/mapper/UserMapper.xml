@@ -18,5 +18,16 @@
         WHERE user_id = #{userId} AND is_active = 1
     </select>
 
+    <!--  이메일 중복 확인  -->
+    <select id="existsByEmail" resultType="int">
+        SELECT COUNT(*)
+        FROM users
+        WHERE email = #{email}
+    </select>
 
+    <!--  회원가입  -->
+    <insert id="insertUser">
+        INSERT INTO users(user_id, email, password, name, profile_image)
+        VALUES (#{userId}, #{email}, #{password}, #{name}, #{profileImage})
+    </insert>
 </mapper>

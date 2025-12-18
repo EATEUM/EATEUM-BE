@@ -6,6 +6,7 @@ import com.eateum.eateumbe.global.jwt.JwtProvider;
 import com.eateum.eateumbe.global.redis.RefreshTokenService;
 import com.eateum.eateumbe.user.domain.User;
 import com.eateum.eateumbe.user.dto.request.LoginRequest;
+import com.eateum.eateumbe.user.dto.request.SignupRequest;
 import com.eateum.eateumbe.user.dto.response.LoginResponse;
 import com.eateum.eateumbe.user.dto.response.UserInfoResponse;
 import com.eateum.eateumbe.user.repository.UserMapper;
@@ -13,14 +14,19 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -32,6 +38,14 @@ public class UserServiceImpl implements UserService {
     private final JwtProvider jwtProvider;
     private final RefreshTokenService refreshTokenService;
     private final JwtProperties jwtProperties;
+
+    @Value("${file.upload.profile-dir}")
+    private String profileDir;
+    @Value("${file.upload.profile-url}")
+    private String profileUrl;
+    @Value("${file.upload.default-url}")
+    private String defaultProfileImageUrl;
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; //5MB
 
     /**
      * 로그인 시 비밀번호를 검증하고 JWT토큰을 발행
@@ -177,8 +191,96 @@ public class UserServiceImpl implements UserService {
         return UserInfoResponse.builder()
                 .email(user.getEmail())
                 .name(user.getName())
-                .profileImage(user.getProfileImage())
+                .profileImage(resolveProfileImage(user.getProfileImage())) //프로필 이미지가 있는지?
                 .build();
+    }
+
+    /**
+     * 회원가입
+     */
+    @Override
+    public void signup(SignupRequest signupRequest, MultipartFile profileImage) {
+
+        //이메일 중복 체크
+        if(userMapper.existsByEmail(signupRequest.getEmail()) > 0) {
+            throw new ApiException(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다.");
+        }
+
+        //프로필 이미지 업로드
+        String imageUrl = null;
+        if(profileImage != null && !profileImage.isEmpty()) {
+            imageUrl = uploadProfileImage(profileImage);
+        }
+
+        //User 생성
+        User user = User.builder()
+                .userId(UUID.randomUUID().toString())
+                .email(signupRequest.getEmail())
+                .password(passwordEncoder.encode(signupRequest.getPassword()))
+                .name(signupRequest.getName())
+                .profileImage(imageUrl)
+                .build();
+
+        userMapper.insertUser(user);
+    }
+
+    /**
+     * 프로필 이미지 업로드
+     */
+    private String uploadProfileImage(MultipartFile file) {
+        try {
+
+            //용량 체크
+            if (file.getSize() > MAX_FILE_SIZE) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "이미지 용량은 5MB 이하만 가능합니다.");
+            }
+
+            //MIME 타입 체크 (image/*)
+            String contentType = file.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "이미지 파일만 업로드 가능합니다.");
+            }
+
+            //확장자 검증 (jpg, png, jpeg, webp)
+            String originalName = file.getOriginalFilename(); //사용자가 올린 원래 파일명
+            if(originalName == null || !originalName.contains(".")) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "파일명이 올바르지 않습니다.");
+            }
+
+            String safeOriginalName = originalName.replaceAll("[^a-zA-Z0-9._-]", "");
+
+            String extension = originalName.substring(originalName.lastIndexOf(".") + 1).toLowerCase();
+
+            if (!List.of("jpg", "jpeg", "png", "webp").contains(extension)) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "지원하지 않는 이미지 형식입니다.");
+            }
+
+            //폴더가 없으면 생성
+            File dir = new File(profileDir);
+            if (!dir.exists() && !dir.mkdirs()) {
+                throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "프로필 이미지 저장 폴더 생성 실패");
+            }
+
+            //저장할 파일명
+            String saveName = UUID.randomUUID() + "_" + safeOriginalName;
+            //최종 저장 위치(파일 객체)
+            File target = new File(profileDir, saveName);
+
+            //실제 파일 저장
+            file.transferTo(target);
+
+            //DB에 저장할 값(접근용 경로 or URL)
+            return profileUrl + saveName;
+
+        } catch (ApiException e) {
+            throw e; //우리가 던진 예외는 그대로
+        } catch (Exception e) {
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "프로필 이미지 업로드 실패");
+        }
+    }
+
+    private String resolveProfileImage(String profileImage) {
+        return (profileImage == null || profileImage.isBlank()) ? defaultProfileImageUrl : profileImage;
     }
 
 }

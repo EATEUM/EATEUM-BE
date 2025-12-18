@@ -12,4 +12,11 @@ public interface UserMapper {
     //프로필 조회
     User findByUserId(String userId);
 
+    //이메일 중복 확인
+    int existsByEmail(String email);
+
+    //회원가입
+    void insertUser(User user);
+
+
 }
