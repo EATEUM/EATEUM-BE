@@ -243,6 +243,12 @@ public class UserServiceImpl implements UserService {
 
             //확장자 검증 (jpg, png, jpeg, webp)
             String originalName = file.getOriginalFilename(); //사용자가 올린 원래 파일명
+            if(originalName == null || !originalName.contains(".")) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "파일명이 올바르지 않습니다.");
+            }
+
+            String safeOriginalName = originalName.replaceAll("[^a-zA-Z0-9._-]", "");
+
             String extension = originalName.substring(originalName.lastIndexOf(".") + 1).toLowerCase();
 
             if (!List.of("jpg", "jpeg", "png", "webp").contains(extension)) {
@@ -251,14 +257,14 @@ public class UserServiceImpl implements UserService {
 
             //폴더가 없으면 생성
             File dir = new File(profileDir);
-            if (!dir.exists()) {
-                dir.mkdirs();
+            if (!dir.exists() && !dir.mkdirs()) {
+                throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "프로필 이미지 저장 폴더 생성 실패");
             }
 
             //저장할 파일명
-            String saveName = UUID.randomUUID() + "_" + originalName;
+            String saveName = UUID.randomUUID() + "_" + safeOriginalName;
             //최종 저장 위치(파일 객체)
-            File target = new File(profileDir + saveName);
+            File target = new File(profileDir, saveName);
 
             //실제 파일 저장
             file.transferTo(target);
