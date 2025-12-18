@@ -13,12 +13,12 @@ import java.util.Date;
 @AllArgsConstructor
 public class User {
 
-    private String userId;
+    private String userId; //UUID
     private String email;
     private String password;
     private String name;
-    private String role;
-    private int isActive;
+    private String role; //USER
+    private int isActive; //1 = 활성, 0 = 비활성
     private String profileImage;
     private Date createdAt;
     private Date updateAt;
