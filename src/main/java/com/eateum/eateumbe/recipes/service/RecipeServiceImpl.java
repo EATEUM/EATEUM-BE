@@ -64,8 +64,6 @@ public class RecipeServiceImpl implements RecipeService {
             return List.of();
         }
 
-        List<Recipe> recipes = recipeMapper.selectRecipesByIds(recommendedIds);
-
         return recipeMapper.selectRecipesByIds(recommendedIds)
                 .stream()
                 .map(RecipeResponse.Recommend::from)
