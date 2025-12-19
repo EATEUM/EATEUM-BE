@@ -30,4 +30,19 @@
         INSERT INTO users(user_id, email, password, name, profile_image)
         VALUES (#{userId}, #{email}, #{password}, #{name}, #{profileImage})
     </insert>
+
+    <!--  프로필 수정  -->
+    <update id="updateUserInfo" parameterType="User">
+        UPDATE users
+        <set>
+            <!--  이름 변경  -->
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <!--  프로필 이미지 변경, NULL이어도 변경! -->
+            profile_image = #{profileImage},
+            updated_at = NOW()
+        </set>
+        WHERE user_id = #{userId}
+    </update>
 </mapper>
