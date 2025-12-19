@@ -38,8 +38,12 @@ public interface FridgeMapper {
     //재료 삭제 기능
     void deleteItem(@Param("userId") String userId, @Param("itemId") Long itemId);
 
+    //회원 냉장고 재료 이름 리스트 조회 (AI 추천용)
+    List<String> selectItemNamesByUserId(@Param("userId") String userId);
+
     //AI가 찾은 이름들로 재료 정보 조회
     List<Fridge> selectItemsByNames(@Param("names") List<String> names);
+
     //AI 이미지를 통해 재료 조회 후, 사용자 선택으로 재료들을 여러 개 추가 하기 위함
     void addFridgeItems(@Param("userId") String userId, @Param("itemIds") List<Long> itemIds);
 

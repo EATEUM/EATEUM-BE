@@ -23,16 +23,20 @@ public class FridgeServiceImpl implements FridgeService {
     private final FridgeMapper fridgeMapper;
     private final GeminiService geminiService;
 
+    @Override
+    public List<String> getGuestItemNames(){
+        return List.of("돼지고기", "스팸", "달걀", "김치", "라면", "양파", "파");
+    }
+
     //내 냉장고 재료 조회
     @Override
     public PageResponse<FridgeResponse> getMyFridgeItems(String userId, int page, int size) {
 
         //비회원인 경우: DB 조회 없이 고정된 7가지 재료 반환
         if("guest".equalsIgnoreCase(userId)){
-            List<String> guestItemNames = List.of("돼지고기", "스팸", "달걀", "김치", "라면", "양파", "파");
+            List<String> guestItemNames = getGuestItemNames();
 
             List<Fridge> guestEntities = fridgeMapper.selectItemsByNames(guestItemNames);
-
             List<FridgeResponse> guestList = guestEntities.stream()
                     .map(FridgeResponse::from)
                     .toList();

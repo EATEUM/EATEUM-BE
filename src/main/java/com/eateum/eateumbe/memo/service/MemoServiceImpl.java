@@ -18,14 +18,13 @@ import java.util.stream.Collectors;
 public class MemoServiceImpl implements MemoService {
 
     private final MemoMapper memoMapper;
-    // TODO : 유저 서비스 완료시, 추가해야 함
 
     @Override
-    public List<MemoResponse> getMemosByRecipe(Long recipeVideoId, Long userId) {
+    public List<MemoResponse> getMemosByRecipe(Long recipeVideoId, String userId) {
 
         List<Memo> memos = memoMapper.selectMemosByRecipe(recipeVideoId, userId);
 
-        // 아직 아무것도 작성되지 않을 경우에도 null이 아닌 빈 리스트[] 반환하도록 설정
+        // 아직 아무것도 작성되지 않을 경우에도 null이 아닌 빈 리스트[] 반환하도록 설정!!
         if (memos == null) {
         return Collections.emptyList();
         }
@@ -37,7 +36,7 @@ public class MemoServiceImpl implements MemoService {
 
     @Override
     @Transactional
-    public MemoResponse createMemo(Long recipeVideoId, Long userId, MemoRequest request) {
+    public MemoResponse createMemo(Long recipeVideoId, String userId, MemoRequest request) {
 
         Memo memo = Memo.builder()
                 .recipeVideoId(recipeVideoId)
@@ -54,7 +53,7 @@ public class MemoServiceImpl implements MemoService {
 
     @Override
     @Transactional
-    public void deleteMemo(Long memoId, Long userId) {
+    public void deleteMemo(Long memoId, String userId) {
         memoMapper.deleteMemoById(memoId, userId);
     }
 }

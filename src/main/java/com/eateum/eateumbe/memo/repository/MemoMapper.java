@@ -8,11 +8,11 @@ import java.util.List;
 
 @Mapper
 public interface MemoMapper {
-    List<Memo> selectMemosByRecipe(@Param("recipeVideoId") Long recipeVideoId, @Param("userId") Long userId);
+    List<Memo> selectMemosByRecipe(@Param("recipeVideoId") Long recipeVideoId, @Param("userId") String userId);
 
     void addMemo(Memo memo);
 
     Memo selectMemoById(@Param("memoId") Long memoId);
 
-    void deleteMemoById(@Param("memoId") Long memoId, @Param("userId") Long userId);
+    void deleteMemoById(@Param("memoId") Long memoId, @Param("userId") String userId);
 }

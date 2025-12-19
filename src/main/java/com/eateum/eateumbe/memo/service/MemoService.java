@@ -7,10 +7,10 @@ import java.util.List;
 
 public interface MemoService {
 
-    List<MemoResponse> getMemosByRecipe(Long recipeVideoId, Long userId);
+    List<MemoResponse> getMemosByRecipe(Long recipeVideoId, String userId);
 
-    MemoResponse createMemo(Long recipeVideoId, Long userId, MemoRequest request);
+    MemoResponse createMemo(Long recipeVideoId, String userId, MemoRequest request);
 
-    void deleteMemo(Long recipeVideoId, Long userId);
+    void deleteMemo(Long recipeVideoId, String userId);
 
 }

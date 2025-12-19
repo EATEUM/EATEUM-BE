@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class RecipeResponse {
@@ -33,16 +34,14 @@ public class RecipeResponse {
         private List<RecipeItem> items;
 
         public static Recommend from(Recipe recipe) {
-            List<RecipeItem> responseItems = Collections.emptyList();
-
-            if (recipe.getItems() != null) {
-                responseItems = recipe.getItems().stream()
-                        .map(item -> RecipeItem.builder()
-                                .itemId(item.getItemId())
-                                .itemName(item.getItemName())
-                                .build())
-                        .collect(Collectors.toList());
-            }
+            List<RecipeItem> responseItems = Optional.ofNullable(recipe.getItems())
+                    .orElseGet(Collections::emptyList)
+                    .stream()
+                    .map(item -> RecipeItem.builder()
+                            .itemId(item.getItemId())
+                            .itemName(item.getItemName())
+                            .build())
+                    .collect(Collectors.toList());
 
             return Recommend.builder()
                     .recipeVideoId(recipe.getRecipeVideoId())
