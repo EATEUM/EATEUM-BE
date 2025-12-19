@@ -2,6 +2,7 @@ package com.eateum.eateumbe.fridges.service;
 
 import java.util.List;
 
+import com.eateum.eateumbe.fridges.domain.Fridge;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -30,7 +31,11 @@ public class FridgeServiceImpl implements FridgeService {
         if("guest".equalsIgnoreCase(userId)){
             List<String> guestItemNames = List.of("돼지고기", "스팸", "달걀", "김치", "라면", "양파", "파");
 
-            List<FridgeResponse> guestList = fridgeMapper.selectItemsByNames(guestItemNames);
+            List<Fridge> guestEntities = fridgeMapper.selectItemsByNames(guestItemNames);
+
+            List<FridgeResponse> guestList = guestEntities.stream()
+                    .map(FridgeResponse::from)
+                    .toList();
 
             return PageResponse.of(guestList, guestList.size(), page, size);
         }
@@ -38,18 +43,25 @@ public class FridgeServiceImpl implements FridgeService {
         //회원인 경우
         //offset을 설정하기 위함 페이지가 넘어가면 그 앞에 개수를 제외하고 순서대로 재료를 가지고 온다. (무한 스크롤 진행이라도 몇 개인지 기준이 필요함)
         int offset = (page - 1) * size;
+
+        List<Fridge> entities = fridgeMapper.selectFridgeListByUserId(userId, size, offset);
+
         //Mapper에게 데이터 조회를 요청시킨다. (limit, offset을 전달)
-        List<FridgeResponse> list = fridgeMapper.selectFridgeListByUserId(userId, size, offset);
+        List<FridgeResponse> list = entities.stream()
+                .map(FridgeResponse::from)
+                .toList();
+
         //전체 재료 개수 계산
         int totalItems = fridgeMapper.countTotalItems(userId);
-
         return PageResponse.of(list, totalItems, page, size);
     }
 
     //재료 검색
     @Override
     public List<FridgeResponse> searchItems(String keyword) {
-        return fridgeMapper.searchItem(keyword);
+        return fridgeMapper.searchItem(keyword).stream()
+                .map(FridgeResponse::from)
+                .toList();
     }
 
     //재료 추가(검색)
@@ -64,7 +76,9 @@ public class FridgeServiceImpl implements FridgeService {
 
         fridgeMapper.addFridgeItem(userId, request.getItemId());
 
-        return fridgeMapper.selectItemDetail(request.getItemId());
+        Fridge entity = fridgeMapper.selectItemDetail(request.getItemId());
+
+        return AddItem.from(entity);
     }
 
     //재료 삭제
@@ -88,7 +102,9 @@ public class FridgeServiceImpl implements FridgeService {
             return List.of();
         }
 
-        return fridgeMapper.selectItemsByNames(detectedNames);
+        List<Fridge> entities = fridgeMapper.selectItemsByNames(detectedNames);
+
+        return entities.stream().map(FridgeResponse::from).toList();
     }
     //이미지 인식 후 재료 추가
     @Override
