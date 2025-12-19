@@ -2,6 +2,7 @@ package com.eateum.eateumbe.user.service;
 
 import com.eateum.eateumbe.user.dto.request.LoginRequest;
 import com.eateum.eateumbe.user.dto.request.SignupRequest;
+import com.eateum.eateumbe.user.dto.request.UpdateInfoRequest;
 import com.eateum.eateumbe.user.dto.response.LoginResponse;
 import com.eateum.eateumbe.user.dto.response.UserInfoResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,4 +25,8 @@ public interface UserService {
     //회원가입
     void signup(SignupRequest signupRequest, MultipartFile profileImage);
 
+    //프로필 수정
+    void updateInfo(String userId, UpdateInfoRequest updateInfoRequest, MultipartFile profileImage);
+
+    void deleteProfileImageOnly(String userId);
 }
