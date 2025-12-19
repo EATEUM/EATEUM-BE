@@ -214,4 +214,28 @@ public class RecipeServiceImpl implements RecipeService {
                 likedCategoryPercent
         );
     }
+
+    @Override
+    @Transactional
+    public void buttonLike(String userId, Long recipeVideoId) {
+        boolean isLiked = recipeMapper.selectIsLiked(recipeVideoId, userId);
+
+        if(isLiked) {
+            recipeMapper.deleteLike(userId, recipeVideoId);
+        } else {
+            recipeMapper.insertLike(userId, recipeVideoId);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void buttonComplete(String userId, Long recipeVideoId) {
+        boolean isCompleted = recipeMapper.selectIsCompleted(recipeVideoId, userId);
+
+        if(isCompleted) {
+            recipeMapper.deleteComplete(userId, recipeVideoId);
+        } else {
+            recipeMapper.insertComplete(userId, recipeVideoId);
+        }
+    }
 }

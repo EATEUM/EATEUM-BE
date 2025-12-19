@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface RecipeService {
 
-    //AI 추천 레시피
+    // AI 추천 레시피
     List<RecipeResponse.Recommend> recommendAiRecipes(RecipeRequest.Recommend request, String userId);
 
     // 15분컷 레시피
@@ -27,4 +27,10 @@ public interface RecipeService {
 
     // 레시피 대시보드
     RecipeDashboardResponse getRecipeDashboard(String userId);
+
+    // 좋아요 버튼
+    void buttonLike(String userId, Long recipeVideoId);
+
+    // 완성 버튼
+    void buttonComplete(String userId, Long recipeVideoId);
  }
