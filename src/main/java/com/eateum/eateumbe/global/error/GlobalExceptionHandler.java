@@ -1,6 +1,7 @@
 package com.eateum.eateumbe.global.error;
 
 import com.eateum.eateumbe.global.common.ApiResponse;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -11,6 +12,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
  * 모든 실패 응답 클래스
  */
 @Slf4j
+@Hidden
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

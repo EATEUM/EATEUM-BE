@@ -20,6 +20,7 @@ public interface FridgeService {
      */
     PageResponse<FridgeResponse> getMyFridgeItems(String userId, int page, int size);
 
+    List<String> getGuestItemNames();
     /*
     재료 검색
     */

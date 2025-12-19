@@ -2,6 +2,7 @@ package com.eateum.eateumbe.fridges.controller;
 
 import java.util.List;
 
+import com.eateum.eateumbe.global.common.BaseController;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,7 +21,7 @@ import static com.eateum.eateumbe.fridges.dto.response.FridgeResponse.*;
 @RestController
 @RequestMapping("/fridges")
 @RequiredArgsConstructor
-public class FridgeController {
+public class FridgeController extends BaseController {
 
     private final FridgeService fridgeService;
 
@@ -116,14 +117,5 @@ public class FridgeController {
 
         return new ApiResponse<>(true, "선택한 재료들이 냉장고에 추가되었습니다.", null);
     }
-
-    //비회원 식별자 변환 로직
-    private String resolveUserId(String userId) {
-        if(userId == null || userId.equals("anonymousUser")) {
-            userId = "guest";
-        }
-        return userId;
-    }
-
 
 }
