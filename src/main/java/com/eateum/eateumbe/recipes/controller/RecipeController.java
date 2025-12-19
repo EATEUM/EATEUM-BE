@@ -9,6 +9,7 @@ import com.eateum.eateumbe.recipes.dto.response.RecipeDashboardResponse;
 import com.eateum.eateumbe.recipes.dto.response.RecipeDetailResponse;
 import com.eateum.eateumbe.recipes.dto.response.RecipeResponse;
 import com.eateum.eateumbe.recipes.service.RecipeService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,6 +24,7 @@ public class RecipeController extends BaseController {
 
     private final RecipeService recipeService;
 
+    @Operation(summary = "AI 추천 레시피")
     @PostMapping("/recommend/ai")
     public ApiResponse<List<RecipeResponse.Recommend>> recommendAi(@AuthenticationPrincipal String userId, @RequestBody RecipeRequest.Recommend request) {
 
@@ -33,19 +35,21 @@ public class RecipeController extends BaseController {
         return ApiResponse.success(results);
     }
 
+    @Operation(summary = "15분 컷 레시피")
     @GetMapping("/recommend/speed")
     public ApiResponse<List<RecipeResponse.Recommend>> recommendSpeed() {
         List<RecipeResponse.Recommend> results = recipeService.recommendSpeedRecipes();
         return ApiResponse.success(results);
     }
 
-
+    @Operation(summary = "지금 뜨고 있는 레시피")
     @GetMapping("/recommend/popular")
     public ApiResponse<List<RecipeResponse.Recommend>> recommendPopular() {
         List<RecipeResponse.Recommend> results = recipeService.recommendPopularRecipes();
         return ApiResponse.success(results);
     }
 
+    @Operation(summary = "레시피 상세 조회")
     @GetMapping("/{recipe_video_id}/detail")
     public ApiResponse<RecipeDetailResponse> getRecipeDetail(
         @AuthenticationPrincipal String userId,
@@ -63,6 +67,7 @@ public class RecipeController extends BaseController {
         return ApiResponse.success(response);
     }
 
+    @Operation(summary = "마이 페이지")
     @GetMapping("/my")
     public ApiResponse<PageResponse<RecipeResponse.Status>> getStatusRecipes(
             @AuthenticationPrincipal String userId,
@@ -75,12 +80,14 @@ public class RecipeController extends BaseController {
         return ApiResponse.success(result);
     }
 
+    @Operation(summary = "마이페이지 대시보드")
     @GetMapping("my/dashboard")
     public ApiResponse<RecipeDashboardResponse> getDashboardRecipes(@AuthenticationPrincipal String userId) {
         RecipeDashboardResponse response = recipeService.getRecipeDashboard(userId);
         return ApiResponse.success(response);
     }
 
+    @Operation(summary = "좋아요 버튼")
     @PostMapping("{recipe_video_id}/like")
     public ApiResponse<Void> buttonLike(
             @AuthenticationPrincipal String userId,
@@ -97,6 +104,7 @@ public class RecipeController extends BaseController {
         return ApiResponse.success(null);
     }
 
+    @Operation(summary = "완성 버튼")
     @PostMapping("{recipe_video_id}/complete")
     public ApiResponse<Void> buttonComplete(
             @AuthenticationPrincipal String userId,

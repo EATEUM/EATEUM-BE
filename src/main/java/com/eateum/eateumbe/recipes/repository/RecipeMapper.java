@@ -64,5 +64,7 @@ public interface RecipeMapper {
     // 좋아요 카테고리 비율 통계
     List<Map<String, Object>> selectLikedCategoryStats(@Param("userId") String userId);
 
+    // 시스템 내부 조회수 증가
+    void updateUserViewCount(@Param("recipeVideoId") Long recipeVideoId);
 }
 

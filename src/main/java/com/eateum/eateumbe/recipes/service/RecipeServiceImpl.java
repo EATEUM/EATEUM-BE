@@ -4,6 +4,7 @@ import com.eateum.eateumbe.fridges.repository.FridgeMapper;
 import com.eateum.eateumbe.fridges.service.FridgeService;
 import com.eateum.eateumbe.global.common.PageResponse;
 import com.eateum.eateumbe.global.constant.RecipeCategory;
+import com.eateum.eateumbe.global.util.ClientIpUtils;
 import com.eateum.eateumbe.memo.dto.response.MemoResponse;
 import com.eateum.eateumbe.memo.service.MemoService;
 import com.eateum.eateumbe.recipes.domain.Recipe;
@@ -13,16 +14,18 @@ import com.eateum.eateumbe.recipes.dto.response.RecipeDetailResponse;
 import com.eateum.eateumbe.recipes.dto.response.RecipeResponse;
 import com.eateum.eateumbe.recipes.repository.RecipeMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class RecipeServiceImpl implements RecipeService {
 
     private final RecipeMapper recipeMapper;
@@ -30,6 +33,8 @@ public class RecipeServiceImpl implements RecipeService {
     private final FridgeService fridgeService;
     private final RagService ragService;
     private final MemoService memoService;
+
+    private final RedisTemplate<String, String> redisTemplate;
 
 
     @Override
@@ -43,7 +48,6 @@ public class RecipeServiceImpl implements RecipeService {
         }
 
         // 2) 재료 선택이 없는 경우 (비회원/ 첫 가입자)
-
         else {
             if(!"guest".equalsIgnoreCase(userId)){
                 items = fridgeMapper.selectItemNamesByUserId(userId);
@@ -90,6 +94,25 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     public RecipeDetailResponse getRecipeDetail(String userId, Long recipeVideoId, Boolean includeMemo) {
+
+        // 조회수 관련 로직 부분
+        // 로그인 유저는 ID, 비회원은 IP
+        String viewerId = userId;
+        if ("guest".equalsIgnoreCase(userId)) {
+            viewerId = ClientIpUtils.getRemoteIP();
+        }
+
+        // redis 키 생성
+        String redisKey = "view:recipe:" + recipeVideoId + ":user:" + viewerId;
+
+        // 키(=24시간 전에 방문한적이) 없을시에만, 조회수 증가
+        if (redisTemplate.opsForValue().get(redisKey) == null) {
+
+            recipeMapper.updateUserViewCount(recipeVideoId);
+
+            redisTemplate.opsForValue().set(redisKey, "1", Duration.ofHours(24));
+        }
+
 
         Recipe recipe = recipeMapper.selectRecipeDetail(recipeVideoId, userId);
         if (recipe == null) {

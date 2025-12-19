@@ -285,4 +285,11 @@
         GROUP BY c.category_name
     </select>
 
+    <!-- 상세 페이지 조회시, 조회수 증가   -->
+    <update id="updateUserViewCount">
+        UPDATE recipe_video
+        SET user_view_count = user_view_count + 1
+        WHERE recipe_video_id = #{recipeVideoId}
+    </update>
+
 </mapper>
