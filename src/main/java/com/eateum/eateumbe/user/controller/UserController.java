@@ -3,16 +3,19 @@ package com.eateum.eateumbe.user.controller;
 import com.eateum.eateumbe.global.common.ApiResponse;
 import com.eateum.eateumbe.user.dto.request.LoginRequest;
 import com.eateum.eateumbe.user.dto.request.SignupRequest;
+import com.eateum.eateumbe.user.dto.request.UpdateInfoRequest;
 import com.eateum.eateumbe.user.dto.response.LoginResponse;
 import com.eateum.eateumbe.user.dto.response.UserInfoResponse;
 import com.eateum.eateumbe.user.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
@@ -56,6 +59,26 @@ public class UserController {
         userService.signup(signupRequest, profileImage);
         return ApiResponse.success(null);
     }
+
+    @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<Void> updateInfo(@AuthenticationPrincipal String userId,
+                                        @RequestPart("update") UpdateInfoRequest updateInfoRequest,
+                                        @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
+        userService.updateInfo(userId, updateInfoRequest, profileImage);
+        return ApiResponse.success(null);
+    }
+
+    /**
+     * 프로필 이미지 삭제
+     */
+    @PatchMapping("/image")
+    public ApiResponse<Void> deleteProfileImage(@AuthenticationPrincipal String userId) {
+
+        log.info("userId = {}", userId);
+        userService.deleteProfileImageOnly(userId);
+        return ApiResponse.success(null);
+    }
+
 
     //AccessToken 인증 테스트용
 //    @GetMapping("/me")

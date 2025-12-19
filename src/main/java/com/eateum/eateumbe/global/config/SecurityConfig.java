@@ -39,6 +39,9 @@ public class SecurityConfig {
 
                 //url 접근 규칙
                 .authorizeHttpRequests(auth -> auth
+                        //preflight OPTIONS 허용
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                         //인증 없이 가능
                         .requestMatchers(HttpMethod.POST, "/user/signup").permitAll()
                         .requestMatchers(HttpMethod.POST, "/user/login").permitAll()
