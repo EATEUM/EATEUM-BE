@@ -39,6 +39,9 @@ public class SecurityConfig {
 
                 //url 접근 규칙
                 .authorizeHttpRequests(auth -> auth
+                        //preflight OPTIONS 허용
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
 
                         // swagger
                         .requestMatchers(

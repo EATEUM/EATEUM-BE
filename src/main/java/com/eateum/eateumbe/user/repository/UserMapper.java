@@ -18,5 +18,7 @@ public interface UserMapper {
     //회원가입
     void insertUser(User user);
 
+    //프로필 수정
+    void updateUserInfo(User user);
 
 }

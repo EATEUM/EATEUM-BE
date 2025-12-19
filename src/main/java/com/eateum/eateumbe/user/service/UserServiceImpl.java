@@ -7,6 +7,7 @@ import com.eateum.eateumbe.global.redis.RefreshTokenService;
 import com.eateum.eateumbe.user.domain.User;
 import com.eateum.eateumbe.user.dto.request.LoginRequest;
 import com.eateum.eateumbe.user.dto.request.SignupRequest;
+import com.eateum.eateumbe.user.dto.request.UpdateInfoRequest;
 import com.eateum.eateumbe.user.dto.response.LoginResponse;
 import com.eateum.eateumbe.user.dto.response.UserInfoResponse;
 import com.eateum.eateumbe.user.repository.UserMapper;
@@ -279,8 +280,71 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * 프로필 이미지 설정
+     */
     private String resolveProfileImage(String profileImage) {
         return (profileImage == null || profileImage.isBlank()) ? defaultProfileImageUrl : profileImage;
     }
+
+    /**
+     * 프로필 수정
+     */
+    @Override
+    public void updateInfo(String userId, UpdateInfoRequest updateInfoRequest, MultipartFile profileImage) {
+        User user = userMapper.findByUserId(userId);
+        if(user == null){
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "유효하지 않은 사용자입니다.");
+        }
+
+        //이름 수정
+        if(updateInfoRequest.getName() != null && !updateInfoRequest.getName().isBlank()) {
+            user.setName(updateInfoRequest.getName());
+        }
+
+        //프로필 이미지 수정
+        if(profileImage != null && !profileImage.isEmpty()) {
+            //기존 이미지 삭제 (기본 이미지 제외)
+            deleteProfileImage(user.getProfileImage());
+
+            //새 이미지 업로드
+            String newImageUrl = uploadProfileImage(profileImage);
+            user.setProfileImage(newImageUrl);
+        }
+
+        userMapper.updateUserInfo(user);
+    }
+
+    /**
+     * 프로필 이미지 삭제
+     */
+    @Override
+    public void deleteProfileImageOnly(String userId) {
+        User user = userMapper.findByUserId(userId);
+        if (user == null) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "인증 정보가 유효하지 않습니다.");
+        }
+
+        deleteProfileImage(user.getProfileImage()); //기본 이미지라면 그냥 리턴
+        user.setProfileImage(null); //아니라면 프로필 이미지 url을 null로
+
+        userMapper.updateUserInfo(user); //수정
+    }
+
+    private void deleteProfileImage(String imageUrl) {
+        //이미지가 없거나 기본 이미지라면 삭제하지 않음
+        if(imageUrl == null || imageUrl.equals(defaultProfileImageUrl)) {
+            return;
+        }
+
+        String fileName = imageUrl.substring(profileUrl.length());
+        File file = new File(profileDir, fileName);
+
+        if (file.exists() && !file.delete()) {
+            log.warn("프로필 이미지 삭제 실패: {}", file.getAbsolutePath());
+        }
+
+    }
+
 
 }
