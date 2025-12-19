@@ -85,6 +85,11 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
+        //OPTIONS 요청은 JWT 필터 제외
+        if("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            return true;
+        }
+
         String path = request.getRequestURI();
 
         return path.startsWith("/user/login")
