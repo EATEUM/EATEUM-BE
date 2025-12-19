@@ -3,12 +3,14 @@ package com.eateum.eateumbe.recipes.controller;
 import com.eateum.eateumbe.global.common.ApiResponse;
 import com.eateum.eateumbe.global.common.BaseController;
 import com.eateum.eateumbe.global.common.PageResponse;
+import com.eateum.eateumbe.global.error.ApiException;
 import com.eateum.eateumbe.recipes.dto.request.RecipeRequest;
 import com.eateum.eateumbe.recipes.dto.response.RecipeDashboardResponse;
 import com.eateum.eateumbe.recipes.dto.response.RecipeDetailResponse;
 import com.eateum.eateumbe.recipes.dto.response.RecipeResponse;
 import com.eateum.eateumbe.recipes.service.RecipeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -77,5 +79,37 @@ public class RecipeController extends BaseController {
     public ApiResponse<RecipeDashboardResponse> getDashboardRecipes(@AuthenticationPrincipal String userId) {
         RecipeDashboardResponse response = recipeService.getRecipeDashboard(userId);
         return ApiResponse.success(response);
+    }
+
+    @PostMapping("{recipe_video_id}/like")
+    public ApiResponse<Void> buttonLike(
+            @AuthenticationPrincipal String userId,
+            @PathVariable("recipe_video_id") Long recipeVideoId
+
+    ){
+        String safeUserId = resolveUserId(userId);
+
+        if ("guest".equals(safeUserId)) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "로그인이 필요한 기능입니다.");
+        }
+
+        recipeService.buttonLike(safeUserId, recipeVideoId);
+        return ApiResponse.success(null);
+    }
+
+    @PostMapping("{recipe_video_id}/complete")
+    public ApiResponse<Void> buttonComplete(
+            @AuthenticationPrincipal String userId,
+            @PathVariable("recipe_video_id") Long recipeVideoId
+
+    ){
+        String safeUserId = resolveUserId(userId);
+
+        if ("guest".equals(safeUserId)) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "로그인이 필요한 기능입니다.");
+        }
+
+        recipeService.buttonComplete(safeUserId, recipeVideoId);
+        return ApiResponse.success(null);
     }
 }

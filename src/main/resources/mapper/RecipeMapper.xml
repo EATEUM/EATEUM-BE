@@ -196,6 +196,17 @@
         LIMIT 3
     </select>
 
+    <!-- 좋아요 누르기 -->
+    <insert id="insertLike">
+        INSERT INTO liked_recipe (user_id, recipe_video_id, created_at)
+        VALUES (#{userId}, #{recipeVideoId}, NOW())
+    </insert>
+
+    <!-- 좋아요 취소  -->
+    <delete id="deleteLike">
+        DELETE FROM liked_recipe
+        WHERE user_id = #{userId} AND recipe_video_id = #{recipeVideoId}
+    </delete>
 
     <!--  완성 레시피 조회   -->
     <select id="selectCompletedRecipes" resultType="Recipe">
@@ -216,6 +227,18 @@
         FROM completed_recipe
         WHERE user_id = #{userId}
     </select>
+
+    <!--  완성 누르기  -->
+    <insert id="insertComplete">
+        INSERT INTO completed_recipe (user_id, recipe_video_id, completed_at)
+        VALUES (#{userId}, #{recipeVideoId}, NOW())
+    </insert>
+
+    <!--  완성 취소   -->
+    <delete id="deleteComplete">
+        DELETE FROM completed_recipe
+        WHERE user_id = #{userId} AND recipe_video_id = #{recipeVideoId}
+    </delete>
 
 
     <!--  좋아요 레시피 조회   -->

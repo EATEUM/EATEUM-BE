@@ -32,11 +32,25 @@ public interface RecipeMapper {
     // 추천 영상 조회
     List<Recipe> selectRelatedVideos(@Param("recipeVideoId") Long recipeVideoId, @Param("categoryId") Long categoryId);
 
+    // Complete
+    // 완성 등록
+    void insertComplete(@Param("userId") String userId, @Param("recipeVideoId") Long recipeVideoId);
+
+    // 완성 취소
+    void deleteComplete(@Param("userId") String userId, @Param("recipeVideoId") Long recipeVideoId);
+
     // 완성한 레시피 목록 조히
     List<Recipe> selectCompletedRecipes(@Param("userId") String userId, @Param("size") int size, @Param("offset") int offset);
 
     // 완성한 레시피 갯수 조회
     int countCompletedRecipes(@Param("userId") String userId);
+
+    // Liked
+    // 좋아요 등록
+    void insertLike(@Param("userId") String userId, @Param("recipeVideoId") Long recipeVideoId);
+
+    // 좋아요 취소
+    void deleteLike(@Param("userId") String userId, @Param("recipeVideoId") Long recipeVideoId);
 
     // 좋아요 레시피 목록 조히
     List<Recipe> selectLikedRecipes(@Param("userId") String userId, @Param("size") int size, @Param("offset") int offset);
