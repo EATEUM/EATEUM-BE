@@ -43,6 +43,20 @@
             profile_image = #{profileImage},
             updated_at = NOW()
         </set>
-        WHERE user_id = #{userId}
+        WHERE user_id = #{userId} AND is_active = 1
     </update>
+
+    <!--  비밀번호 변경  -->
+    <update id="updatePassword">
+        UPDATE users
+        SET password = #{password}
+        WHERE user_id = #{userId} AND is_active = 1
+    </update>
+
+    <!--  비밀번호 변경을 위한 사용자 정보 조회용 -->
+    <select id="findByUserIdForPassword" resultType="User">
+        SELECT user_id, password
+        FROM users
+        WHERE user_id = #{userId} AND is_active = 1
+    </select>
 </mapper>
