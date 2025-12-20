@@ -59,4 +59,12 @@
         FROM users
         WHERE user_id = #{userId} AND is_active = 1
     </select>
+
+    <!-- 탈퇴  -->
+    <update id="withdraw">
+        UPDATE users
+        SET is_active = 0,
+            updated_at = NOW()
+        WHERE user_id = #{userId} AND is_active = 1
+    </update>
 </mapper>

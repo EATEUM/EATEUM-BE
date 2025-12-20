@@ -27,4 +27,7 @@ public interface UserMapper {
 
     //비밀번호 변경을 위한 사용자 정보 조회용
     User findByUserIdForPassword(String userId);
+
+    //탈퇴
+    int withdraw(String userId);
 }
