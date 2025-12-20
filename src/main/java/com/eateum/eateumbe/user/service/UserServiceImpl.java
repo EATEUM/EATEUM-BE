@@ -6,6 +6,7 @@ import com.eateum.eateumbe.global.jwt.JwtProvider;
 import com.eateum.eateumbe.global.redis.RefreshTokenService;
 import com.eateum.eateumbe.user.domain.User;
 import com.eateum.eateumbe.user.dto.request.LoginRequest;
+import com.eateum.eateumbe.user.dto.request.PasswordChangeRequest;
 import com.eateum.eateumbe.user.dto.request.SignupRequest;
 import com.eateum.eateumbe.user.dto.request.UpdateInfoRequest;
 import com.eateum.eateumbe.user.dto.response.LoginResponse;
@@ -331,6 +332,9 @@ public class UserServiceImpl implements UserService {
         userMapper.updateUserInfo(user); //수정
     }
 
+    /**
+     * 프로필 이미지가 없을때
+     */
     private void deleteProfileImage(String imageUrl) {
         //이미지가 없거나 기본 이미지라면 삭제하지 않음
         if(imageUrl == null || imageUrl.equals(defaultProfileImageUrl)) {
@@ -346,5 +350,32 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    /**
+     * 비밀번호 변경
+     */
+    @Override
+    public void changePassword(String userId, PasswordChangeRequest passwordChangeRequest) {
+        User user = userMapper.findByUserIdForPassword(userId);
+        if (user == null) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "인증 정보가 유효하지 않습니다.");
+        }
+
+        //현재 비밀번호 일치 여부
+        if(!passwordEncoder.matches(passwordChangeRequest.getCurrentPassword(), user.getPassword())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "현재 비밀번호가 일치하지 않습니다.");
+        }
+
+        //새 비밀번호
+        if(!passwordChangeRequest.getNewPassword().equals(passwordChangeRequest.getConfirmPassword())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "새 비밀번호가 일치하지 않습니다.");
+        }
+
+        //비밀번호 암호화 후 변경하기
+        String encodedNewPassword = passwordEncoder.encode(passwordChangeRequest.getNewPassword());
+        userMapper.updatePassword(userId, encodedNewPassword);
+
+        //RefreshToken제거로 강제 로그아웃!
+        refreshTokenService.delete(userId);
+    }
 
 }
