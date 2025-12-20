@@ -2,14 +2,12 @@ package com.eateum.eateumbe.user.controller;
 
 import com.eateum.eateumbe.global.common.ApiResponse;
 import com.eateum.eateumbe.global.error.ApiException;
-import com.eateum.eateumbe.user.dto.request.LoginRequest;
-import com.eateum.eateumbe.user.dto.request.PasswordChangeRequest;
-import com.eateum.eateumbe.user.dto.request.SignupRequest;
-import com.eateum.eateumbe.user.dto.request.UpdateInfoRequest;
+import com.eateum.eateumbe.user.dto.request.*;
 import com.eateum.eateumbe.user.dto.response.LoginResponse;
 import com.eateum.eateumbe.user.dto.response.UserInfoResponse;
 import com.eateum.eateumbe.user.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -94,6 +92,15 @@ public class UserController {
 
                 userService.changePassword(userId, passwordChangeRequest);
                 return ApiResponse.success(null);
+    }
+
+    /**
+     * 비밀번호 재확인 (프로필 진입 전)
+     */
+    @PostMapping("/password-check")
+    public ApiResponse<Void> passwordCheck(@RequestBody @Valid PasswordCheckRequest passwordCheckRequest) {
+        userService.checkPassword(passwordCheckRequest.getPassword());
+        return ApiResponse.success(null);
     }
 
     //AccessToken 인증 테스트용
