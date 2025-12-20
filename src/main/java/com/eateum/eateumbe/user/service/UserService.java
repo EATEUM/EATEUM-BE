@@ -38,4 +38,7 @@ public interface UserService {
 
     //비밀번호 확인
     void checkPassword(@NotBlank(message = "비밀번호는 필수입니다.") String password);
+
+    //탈퇴
+    void withdraw(String userId);
 }
