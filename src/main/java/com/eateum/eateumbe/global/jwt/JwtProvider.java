@@ -78,35 +78,24 @@ public class JwtProvider {
      */
     public Claims parseClaims(String token) {
 
-        try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .requireIssuer(jwtProperties.getIssuer())
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (ExpiredJwtException e) { //엑세스 토큰 만료
-            throw new ApiException(HttpStatus.UNAUTHORIZED, "엑세스 토큰이 만료되었습니다.");
-        } catch (JwtException e) { //위조,변조,형식 오류
-            throw new ApiException(HttpStatus.UNAUTHORIZED, "엑세스 토큰이 유효하지 않습니다.");
-        }
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .requireIssuer(jwtProperties.getIssuer())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     /**
      * RefreshToken 전용 검증 (Service용)
      */
     public Claims parseRefreshClaims(String refreshToken) {
-        try{
-            return Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .requireIssuer(jwtProperties.getIssuer())
-                    .build()
-                    .parseClaimsJws(refreshToken)
-                    .getBody();
-        } catch (ExpiredJwtException e) {
-            throw new ApiException(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 만료되었습니다.");
-        } catch (JwtException e) {
-            throw new ApiException(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 유효하지 않습니다.");
-        }
+
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .requireIssuer(jwtProperties.getIssuer())
+                .build()
+                .parseClaimsJws(refreshToken)
+                .getBody();
     }
 }
