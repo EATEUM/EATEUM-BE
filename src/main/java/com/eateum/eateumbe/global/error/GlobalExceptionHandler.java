@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 /**
- * 모든 실패 응답 클래스
+ * [전역 예외 처리기] : Controller / Service 계층에서 발생하는 예외를 처리
+ *
+ * - ApiException을 공통 응답 포맷(ApiResponse)으로 변환
  */
 @Slf4j
 @Hidden
