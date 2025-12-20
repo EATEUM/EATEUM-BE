@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -376,6 +377,30 @@ public class UserServiceImpl implements UserService {
 
         //RefreshToken제거로 강제 로그아웃!
         refreshTokenService.delete(userId);
+    }
+
+    /**
+     * 비밀번호 확인
+     */
+    @Override
+    public void checkPassword(String password) {
+        //현재 로그인 사용자 ID 정보 받기
+        String userId = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        //조회
+        User user = userMapper.findByUserIdForPassword(userId);
+        if(user == null){
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "인증 정보가 올바르지 않습니다.");
+        }
+
+        //비밀번호 검증
+        if(!passwordEncoder.matches(password, user.getPassword())) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
+        }
+
+        //성공시에는 아무것도 하지 않아도 됨!
     }
 
 }
