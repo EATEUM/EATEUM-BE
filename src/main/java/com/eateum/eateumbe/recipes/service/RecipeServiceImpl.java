@@ -1,7 +1,10 @@
 package com.eateum.eateumbe.recipes.service;
 
+import com.eateum.eateumbe.fridges.repository.FridgeMapper;
+import com.eateum.eateumbe.fridges.service.FridgeService;
 import com.eateum.eateumbe.global.common.PageResponse;
 import com.eateum.eateumbe.global.constant.RecipeCategory;
+import com.eateum.eateumbe.global.util.ClientIpUtils;
 import com.eateum.eateumbe.memo.dto.response.MemoResponse;
 import com.eateum.eateumbe.memo.service.MemoService;
 import com.eateum.eateumbe.recipes.domain.Recipe;
@@ -11,38 +14,51 @@ import com.eateum.eateumbe.recipes.dto.response.RecipeDetailResponse;
 import com.eateum.eateumbe.recipes.dto.response.RecipeResponse;
 import com.eateum.eateumbe.recipes.repository.RecipeMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class RecipeServiceImpl implements RecipeService {
 
     private final RecipeMapper recipeMapper;
+    private final FridgeMapper fridgeMapper;
+    private final FridgeService fridgeService;
     private final RagService ragService;
     private final MemoService memoService;
 
-    // 임시 유저 ID 획득 메서드 (실제 구현 시 Security Context에서 가져와야 함)
-    private Long getCurrentUserId() {
-        return 1L; // 임시 테스트용
-    }
+    private final RedisTemplate<String, String> redisTemplate;
+
 
     @Override
-    public List<RecipeResponse.Recommend> recommendAiRecipes(RecipeRequest.Recommend request) {
+    public List<RecipeResponse.Recommend> recommendAiRecipes(RecipeRequest.Recommend request, String userId) {
 
-        if (request == null || request.getSelectedItems() == null) {
-            return List.of();
+        List<String> items;
+
+        // 1) 회원이 냉장고에서 재료 선택한 경우
+        if (request.getSelectedItems() != null && !request.getSelectedItems().isEmpty()) {
+            items = request.getSelectedItems();
         }
 
-        List<String> items = request.getSelectedItems();
+        // 2) 재료 선택이 없는 경우 (비회원/ 첫 가입자)
+        else {
+            if(!"guest".equalsIgnoreCase(userId)){
+                items = fridgeMapper.selectItemNamesByUserId(userId);
 
-        if (items.isEmpty()) {
-            return List.of();
+                if(items == null || items.isEmpty()){
+                    items = fridgeService.getGuestItemNames();
+                }
+            }
+            else{
+                items = fridgeService.getGuestItemNames();
+            }
         }
 
         // RAG 서버와 연동
@@ -52,10 +68,8 @@ public class RecipeServiceImpl implements RecipeService {
             return List.of();
         }
 
-        List<Recipe> recipes = recipeMapper.selectRecipesByIds(recommendedIds);
-
-        // Domain(Entity) -> DTO 변환
-        return recipes.stream()
+        return recipeMapper.selectRecipesByIds(recommendedIds)
+                .stream()
                 .map(RecipeResponse.Recommend::from)
                 .collect(Collectors.toList());
     }
@@ -79,17 +93,40 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
-    public RecipeDetailResponse getRecipeDetail(Long recipeVideoId, Boolean includeMemo) {
+    public RecipeDetailResponse getRecipeDetail(String userId, Long recipeVideoId, Boolean includeMemo) {
 
-        Recipe recipe = recipeMapper.selectRecipeDetail(recipeVideoId);
+        // 조회수 관련 로직 부분
+        // 로그인 유저는 ID, 비회원은 IP
+        String viewerId = userId;
+        if ("guest".equalsIgnoreCase(userId)) {
+            viewerId = ClientIpUtils.getRemoteIP();
+        }
+
+        // redis 키 생성
+        String redisKey = "view:recipe:" + recipeVideoId + ":user:" + viewerId;
+
+        // 키(=24시간 전에 방문한적이) 없을시에만, 조회수 증가
+        if (redisTemplate.opsForValue().get(redisKey) == null) {
+
+            recipeMapper.updateUserViewCount(recipeVideoId);
+
+            redisTemplate.opsForValue().set(redisKey, "1", Duration.ofHours(24));
+        }
+
+
+        Recipe recipe = recipeMapper.selectRecipeDetail(recipeVideoId, userId);
         if (recipe == null) {
             throw new IllegalArgumentException("존재하지 않는 레시피입니다.");
         }
 
-        // 좋아요 / 완료
-        Long userId = getCurrentUserId();
-        Boolean isLiked = recipeMapper.selectIsLiked(recipeVideoId, userId);
-        Boolean isCompleted = recipeMapper.selectIsCompleted(recipeVideoId, userId);
+        Boolean isLiked = false;
+        Boolean isCompleted = false;
+
+        // 비회원(guest)이면 좋아요, 완성, 메모 조회 생략
+        if (!"guest".equalsIgnoreCase(userId)) {
+            isLiked = recipeMapper.selectIsLiked(recipeVideoId, userId);
+            isCompleted = recipeMapper.selectIsCompleted(recipeVideoId, userId);
+        }
 
         // 추천 동영상
         // includeMemo가 false(일반 상세페이지)일 때만 추천 영상을 가져옴
@@ -100,7 +137,7 @@ public class RecipeServiceImpl implements RecipeService {
         // 메모
         // includeMemo가 false(일반 상세페이지)면 비어 있는 리스트[] 전달
         // true(마이페이지)일 경우만 메모 가져옴 , 그러나 만약 아무것도 작성되지 않았을 경우 빈 리스트 [] 전달하도록 memoService 에 조건문 추가함
-        List<MemoResponse> memos = includeMemo ?
+        List<MemoResponse> memos = (includeMemo && !"guest".equalsIgnoreCase(userId)) ?
                 memoService.getMemosByRecipe(recipeVideoId, userId) :
                 Collections.emptyList();
 
@@ -109,7 +146,7 @@ public class RecipeServiceImpl implements RecipeService {
 
     // page 를 -> offset(건너뛸 개수)로 변환
     @Override
-    public PageResponse<RecipeResponse.Status> getStatusRecipes(Long userId, String status, int page, int size) {
+    public PageResponse<RecipeResponse.Status> getStatusRecipes(String userId, String status, int page, int size) {
         int offset = (page - 1) * size;
 
         List<Recipe> recipes;
@@ -139,7 +176,7 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
-    public RecipeDashboardResponse getRecipeDashboard(Long userId) {
+    public RecipeDashboardResponse getRecipeDashboard(String userId) {
 
         // 6개월
         int period = 6;
@@ -199,5 +236,29 @@ public class RecipeServiceImpl implements RecipeService {
                 monthlyCompletedStats,
                 likedCategoryPercent
         );
+    }
+
+    @Override
+    @Transactional
+    public void buttonLike(String userId, Long recipeVideoId) {
+        boolean isLiked = recipeMapper.selectIsLiked(recipeVideoId, userId);
+
+        if(isLiked) {
+            recipeMapper.deleteLike(userId, recipeVideoId);
+        } else {
+            recipeMapper.insertLike(userId, recipeVideoId);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void buttonComplete(String userId, Long recipeVideoId) {
+        boolean isCompleted = recipeMapper.selectIsCompleted(recipeVideoId, userId);
+
+        if(isCompleted) {
+            recipeMapper.deleteComplete(userId, recipeVideoId);
+        } else {
+            recipeMapper.insertComplete(userId, recipeVideoId);
+        }
     }
 }

@@ -42,6 +42,13 @@ public class SecurityConfig {
                         //preflight OPTIONS 허용
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
+
+                        // swagger
+                        .requestMatchers(
+                            "/v3/api-docs/**",
+                            "/swagger-ui/**",
+                            "/swagger-ui.html"
+                        ).permitAll()
                         //인증 없이 가능
                         .requestMatchers(HttpMethod.POST, "/user/signup").permitAll()
                         .requestMatchers(HttpMethod.POST, "/user/login").permitAll()
@@ -50,6 +57,8 @@ public class SecurityConfig {
 
                         //그 외 user는 전부 인증 필요
                         .requestMatchers("/user/**").authenticated()
+                        .requestMatchers("/recipes/*/memo/**").authenticated()
+                        .requestMatchers("/recipes/my/**").authenticated()
 
                         //나머지 API는 일단 열어두고 추후 수정
                         .anyRequest().permitAll()

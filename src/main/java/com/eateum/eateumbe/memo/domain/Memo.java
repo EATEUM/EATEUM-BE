@@ -10,7 +10,7 @@ import lombok.*;
 public class Memo {
     private Long memoId;
     private Long recipeVideoId;
-    private Long userId;
+    private String userId;
     private String content;
     private String createdAt;
     private String updatedAt;

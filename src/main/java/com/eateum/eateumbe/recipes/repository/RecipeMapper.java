@@ -21,34 +21,50 @@ public interface RecipeMapper {
     List<Recipe> selectPopularRecipes();
 
     // 레시피 상세 조회
-    Recipe selectRecipeDetail(@Param("recipeVideoId") Long recipeVideoId);
+    Recipe selectRecipeDetail(@Param("recipeVideoId") Long recipeVideoId, @Param("userId") String userId);
 
     // 좋아요 여부 조회
-    boolean selectIsLiked(@Param("recipeVideoId") Long recipeVideoId, @Param("userId") Long userId);
+    Boolean selectIsLiked(@Param("recipeVideoId") Long recipeVideoId, @Param("userId") String userId);
 
     // 완성 여부 조회
-    boolean selectIsCompleted(@Param("recipeVideoId") Long recipeVideoId, @Param("userId") Long userId);
+    Boolean selectIsCompleted(@Param("recipeVideoId") Long recipeVideoId, @Param("userId") String userId);
 
     // 추천 영상 조회
     List<Recipe> selectRelatedVideos(@Param("recipeVideoId") Long recipeVideoId, @Param("categoryId") Long categoryId);
 
+    // Complete
+    // 완성 등록
+    void insertComplete(@Param("userId") String userId, @Param("recipeVideoId") Long recipeVideoId);
+
+    // 완성 취소
+    void deleteComplete(@Param("userId") String userId, @Param("recipeVideoId") Long recipeVideoId);
+
     // 완성한 레시피 목록 조히
-    List<Recipe> selectCompletedRecipes(@Param("userId") Long userId, @Param("size") int size, @Param("offset") int offset);
+    List<Recipe> selectCompletedRecipes(@Param("userId") String userId, @Param("size") int size, @Param("offset") int offset);
 
     // 완성한 레시피 갯수 조회
-    int countCompletedRecipes(@Param("userId") Long userId);
+    int countCompletedRecipes(@Param("userId") String userId);
+
+    // Liked
+    // 좋아요 등록
+    void insertLike(@Param("userId") String userId, @Param("recipeVideoId") Long recipeVideoId);
+
+    // 좋아요 취소
+    void deleteLike(@Param("userId") String userId, @Param("recipeVideoId") Long recipeVideoId);
 
     // 좋아요 레시피 목록 조히
-    List<Recipe> selectLikedRecipes(@Param("userId") Long userId, @Param("size") int size, @Param("offset") int offset);
+    List<Recipe> selectLikedRecipes(@Param("userId") String userId, @Param("size") int size, @Param("offset") int offset);
 
     // 좋아요 레시피 갯수 조회
-    int countLikedRecipes(@Param("userId") Long userId);
+    int countLikedRecipes(@Param("userId") String userId);
 
     // 6개월 완성 레시피 통게
-    List<Map<String, Object>> selectMonthlyCompletedStats(@Param("userId") Long userId, @Param("startDate") LocalDateTime startDate);
+    List<Map<String, Object>> selectMonthlyCompletedStats(@Param("userId") String userId, @Param("startDate") LocalDateTime startDate);
 
     // 좋아요 카테고리 비율 통계
-    List<Map<String, Object>> selectLikedCategoryStats(@Param("userId") Long userId);
+    List<Map<String, Object>> selectLikedCategoryStats(@Param("userId") String userId);
 
+    // 시스템 내부 조회수 증가
+    void updateUserViewCount(@Param("recipeVideoId") Long recipeVideoId);
 }
 

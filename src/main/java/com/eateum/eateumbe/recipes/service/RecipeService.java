@@ -10,8 +10,8 @@ import java.util.List;
 
 public interface RecipeService {
 
-    //AI 추천 레시피
-    List<RecipeResponse.Recommend> recommendAiRecipes(RecipeRequest.Recommend request);
+    // AI 추천 레시피
+    List<RecipeResponse.Recommend> recommendAiRecipes(RecipeRequest.Recommend request, String userId);
 
     // 15분컷 레시피
     List<RecipeResponse.Recommend> recommendSpeedRecipes();
@@ -20,11 +20,17 @@ public interface RecipeService {
     List<RecipeResponse.Recommend> recommendPopularRecipes();
 
     // 레시피 상세 조회
-    RecipeDetailResponse getRecipeDetail(Long recipeVideoId, Boolean includeMemo);
+    RecipeDetailResponse getRecipeDetail(String userId, Long recipeVideoId, Boolean includeMemo);
 
     //  완성 or 좋아요 에 따른 조회(마이페이지)
-    PageResponse<RecipeResponse.Status> getStatusRecipes(Long userId, String status, int page, int size);
+    PageResponse<RecipeResponse.Status> getStatusRecipes(String userId, String status, int page, int size);
 
     // 레시피 대시보드
-    RecipeDashboardResponse getRecipeDashboard(Long userId);
+    RecipeDashboardResponse getRecipeDashboard(String userId);
+
+    // 좋아요 버튼
+    void buttonLike(String userId, Long recipeVideoId);
+
+    // 완성 버튼
+    void buttonComplete(String userId, Long recipeVideoId);
  }
