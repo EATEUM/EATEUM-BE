@@ -1,9 +1,7 @@
 package com.eateum.eateumbe.global.security;
 
-import com.eateum.eateumbe.global.error.ApiException;
 import com.eateum.eateumbe.global.jwt.JwtProvider;
 import com.eateum.eateumbe.global.util.AuthorizationExtractor;
-import com.fasterxml.jackson.databind.ObjectMapper; // 1. JSON 변환기 추가
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -12,32 +10,33 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 
 /**
- * 로그인 제외 요청에서 Authorization: Bear {accessToken} 검사
+ * [JWT 인증 필터] : Authorization 헤더의 AccessToken을 검사하는 필터
+ *
+ * - 토큰이 존재하면 : JWT 파싱 및 유효성 검증 > 성공 시 SecurityContext에 인증 정보 저장
+ * - 토큰이 없으면 : 인증 없이 다음 필터로 요청 전달
+ * - 토큰이 유효하지 않으면 : AuthenticationException을 던지고 직접 응답은 만들지 않음
+ *   > 이후 ExceptionTranslationFilter에서 401 응답 처리됨
+ *
+ * 이 필터는 검증만 담당하며 HTTP 응답을 생성하지 않음
  */
 @Slf4j
-@Component
 @RequiredArgsConstructor
 public class JwtVerificationFilter extends OncePerRequestFilter {
 
     private final JwtProvider provider;
-    private final ObjectMapper objectMapper;
 
     @Override
     protected void doFilterInternal(
@@ -79,32 +78,12 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
             //검증 끝! 다음 필터 or 컨트롤러로 요청 넘김
             filterChain.doFilter(request, response);
 
-        } catch (ApiException e) {
-            log.warn("JWT 인증 실패 (API Exception): {}", e.getMessage());
-            setErrorResponse(response, e.getMessage());
-
         } catch (JwtException | IllegalArgumentException e) {
-            log.warn("JWT 인증 실패 (Token Error): {}", e.getMessage());
-            setErrorResponse(response, "유효하지 않은 토큰입니다.");
-
-        } catch (Exception e) {
-            log.error("JWT 필터 알 수 없는 오류", e);
-            setErrorResponse(response, "인증 처리 중 알 수 없는 오류가 발생했습니다.");
+            //토큰이 이상함 > 인증된 사용자 요청이 아님 > 로그인 정보를 비움 > 인증 실패 예외를 Security에게 넘김
+            log.warn("JWT 인증 실패 : {}", e.getMessage());
+            SecurityContextHolder.clearContext();
+            throw new BadCredentialsException("INVALID_TOKEN");
         }
-
-    }
-
-    private void setErrorResponse(HttpServletResponse response, String message) throws IOException {
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding("UTF-8");
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("status", HttpStatus.UNAUTHORIZED.value());
-        body.put("error", "Unauthorized");
-        body.put("message", message);
-
-        response.getWriter().write(objectMapper.writeValueAsString(body));
     }
 
     /**
