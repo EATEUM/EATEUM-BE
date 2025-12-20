@@ -186,10 +186,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserInfoResponse getUserInfo(String userId) {
-        User user = userMapper.findByUserId(userId);
-        if(user == null){
-            throw new ApiException(HttpStatus.UNAUTHORIZED, "유효하지 않은 사용자 입니다."); //인증된 요청에서 User가 없다는건 불가능
-        }
+        User user = getActiveUser(userId);
 
         return UserInfoResponse.builder()
                 .email(user.getEmail())
@@ -294,10 +291,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void updateInfo(String userId, UpdateInfoRequest updateInfoRequest, MultipartFile profileImage) {
-        User user = userMapper.findByUserId(userId);
-        if(user == null){
-            throw new ApiException(HttpStatus.UNAUTHORIZED, "유효하지 않은 사용자입니다.");
-        }
+        User user = getActiveUser(userId);
 
         //이름 수정
         if(updateInfoRequest.getName() != null && !updateInfoRequest.getName().isBlank()) {
@@ -322,10 +316,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void deleteProfileImageOnly(String userId) {
-        User user = userMapper.findByUserId(userId);
-        if (user == null) {
-            throw new ApiException(HttpStatus.UNAUTHORIZED, "인증 정보가 유효하지 않습니다.");
-        }
+        User user = getActiveUser(userId);
 
         deleteProfileImage(user.getProfileImage()); //기본 이미지라면 그냥 리턴
         user.setProfileImage(null); //아니라면 프로필 이미지 url을 null로
@@ -391,8 +382,8 @@ public class UserServiceImpl implements UserService {
 
         //조회
         User user = userMapper.findByUserIdForPassword(userId);
-        if(user == null){
-            throw new ApiException(HttpStatus.UNAUTHORIZED, "인증 정보가 올바르지 않습니다.");
+        if (user == null) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "인증 정보가 유효하지 않습니다.");
         }
 
         //비밀번호 검증
@@ -401,6 +392,31 @@ public class UserServiceImpl implements UserService {
         }
 
         //성공시에는 아무것도 하지 않아도 됨!
+    }
+
+    /**
+     * 회원탈퇴
+     */
+    @Override
+    public void withdraw(String userId) {
+        int withdrawCount = userMapper.withdraw(userId);
+
+        if(withdrawCount == 0) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "이미 탈퇴했거나 존재하지 않는 사용자입니다.");
+        }
+
+        //RefreshToken 삭제 (강제 로그아웃)
+        refreshTokenService.delete(userId);
+    }
+
+    //인증된 활성 사용자 조회
+    private User getActiveUser(String  userId) {
+        User user = userMapper.findByUserId(userId);
+        if(user == null){
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "인증 정보가 올바르지 않습니다.");
+        }
+
+        return user;
     }
 
 }

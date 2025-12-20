@@ -103,6 +103,12 @@ public class UserController {
         return ApiResponse.success(null);
     }
 
+    @PatchMapping("/withdraw")
+    public ApiResponse<Void> withdraw(@AuthenticationPrincipal String userId) {
+        userService.withdraw(userId);
+        return ApiResponse.success(null);
+    }
+
     //AccessToken 인증 테스트용
 //    @GetMapping("/me")
 //    public String me(@AuthenticationPrincipal String userId) {
