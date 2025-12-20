@@ -1,6 +1,7 @@
 package com.eateum.eateumbe.user.service;
 
 import com.eateum.eateumbe.user.dto.request.LoginRequest;
+import com.eateum.eateumbe.user.dto.request.PasswordChangeRequest;
 import com.eateum.eateumbe.user.dto.request.SignupRequest;
 import com.eateum.eateumbe.user.dto.request.UpdateInfoRequest;
 import com.eateum.eateumbe.user.dto.response.LoginResponse;
@@ -29,4 +30,6 @@ public interface UserService {
     void updateInfo(String userId, UpdateInfoRequest updateInfoRequest, MultipartFile profileImage);
 
     void deleteProfileImageOnly(String userId);
+
+    void changePassword(String userId, PasswordChangeRequest passwordChangeRequest);
 }

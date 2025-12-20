@@ -1,7 +1,9 @@
 package com.eateum.eateumbe.user.controller;
 
 import com.eateum.eateumbe.global.common.ApiResponse;
+import com.eateum.eateumbe.global.error.ApiException;
 import com.eateum.eateumbe.user.dto.request.LoginRequest;
+import com.eateum.eateumbe.user.dto.request.PasswordChangeRequest;
 import com.eateum.eateumbe.user.dto.request.SignupRequest;
 import com.eateum.eateumbe.user.dto.request.UpdateInfoRequest;
 import com.eateum.eateumbe.user.dto.response.LoginResponse;
@@ -10,6 +12,7 @@ import com.eateum.eateumbe.user.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -79,6 +82,19 @@ public class UserController {
         return ApiResponse.success(null);
     }
 
+    /**
+     * 비밀번호 변경
+     */
+    @PostMapping("/password")
+    public ApiResponse<Void> changePassword(@AuthenticationPrincipal String userId,
+                                            @RequestBody PasswordChangeRequest passwordChangeRequest) {
+        if(userId == null) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");
+        }
+
+                userService.changePassword(userId, passwordChangeRequest);
+                return ApiResponse.success(null);
+    }
 
     //AccessToken 인증 테스트용
 //    @GetMapping("/me")
