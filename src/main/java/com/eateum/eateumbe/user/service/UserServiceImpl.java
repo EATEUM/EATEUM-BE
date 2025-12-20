@@ -347,7 +347,10 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void changePassword(String userId, PasswordChangeRequest passwordChangeRequest) {
-        User user = getActiveUser(userId);
+        User user = userMapper.findByUserIdForPassword(userId);
+        if (user == null) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "인증 정보가 유효하지 않습니다.");
+        }
 
         //현재 비밀번호 일치 여부
         if(!passwordEncoder.matches(passwordChangeRequest.getCurrentPassword(), user.getPassword())) {
@@ -378,7 +381,10 @@ public class UserServiceImpl implements UserService {
                 .getName();
 
         //조회
-        User user = getActiveUser(userId);
+        User user = userMapper.findByUserIdForPassword(userId);
+        if (user == null) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "인증 정보가 유효하지 않습니다.");
+        }
 
         //비밀번호 검증
         if(!passwordEncoder.matches(password, user.getPassword())) {
