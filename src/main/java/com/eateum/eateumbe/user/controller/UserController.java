@@ -1,7 +1,6 @@
 package com.eateum.eateumbe.user.controller;
 
 import com.eateum.eateumbe.global.common.ApiResponse;
-import com.eateum.eateumbe.global.error.ApiException;
 import com.eateum.eateumbe.user.dto.request.*;
 import com.eateum.eateumbe.user.dto.response.FindIdResponse;
 import com.eateum.eateumbe.user.dto.response.LoginResponse;
