@@ -15,6 +15,7 @@ public class User {
     private String email;
     private String password;
     private String name;
+    private String phone;
     private String role; //USER
     private int isActive; //1 = 활성, 0 = 비활성
     private String profileImage;
