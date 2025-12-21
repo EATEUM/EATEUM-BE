@@ -11,9 +11,16 @@
         WHERE email = #{email} AND is_active = 1
     </select>
 
+    <!--  비밀번호 찾기 시 활성 조건 없이 사용자 조회 (계정관리용) -->
+    <select id="findByEmailAll" resultType="User">
+        SELECT user_id, name, phone, is_active
+        FROM users
+        WHERE email = #{email}
+    </select>
+
     <!--  프로필 조회  -->
     <select id="findByUserId" resultType="User">
-        SELECT user_id, email, name, profile_image
+        SELECT user_id, email, name, phone, profile_image
         FROM users
         WHERE user_id = #{userId} AND is_active = 1
     </select>
@@ -22,13 +29,20 @@
     <select id="existsByEmail" resultType="int">
         SELECT COUNT(*)
         FROM users
-        WHERE email = #{email}
+        WHERE email = #{email};
+    </select>
+
+    <!--  전화번호 중복 확인  -->
+    <select id="existsByPhone" resultType="int">
+        SELECT COUNT(*)
+        FROM users
+        WHERE phone = #{phone};
     </select>
 
     <!--  회원가입  -->
     <insert id="insertUser">
-        INSERT INTO users(user_id, email, password, name, profile_image)
-        VALUES (#{userId}, #{email}, #{password}, #{name}, #{profileImage})
+        INSERT INTO users(user_id, email, password, name, phone, profile_image)
+        VALUES (#{userId}, #{email}, #{password}, #{name}, #{phone}, #{profileImage})
     </insert>
 
     <!--  프로필 수정  -->
@@ -38,6 +52,10 @@
             <!--  이름 변경  -->
             <if test="name != null">
                 name = #{name},
+            </if>
+            <!--  전화번호 변경  -->
+            <if test="phone != null">
+                phone = #{phone},
             </if>
             <!--  프로필 이미지 변경, NULL이어도 변경! -->
             profile_image = #{profileImage},
@@ -60,11 +78,33 @@
         WHERE user_id = #{userId} AND is_active = 1
     </select>
 
-    <!-- 탈퇴  -->
+    <!--  탈퇴  -->
     <update id="withdraw">
         UPDATE users
         SET is_active = 0,
             updated_at = NOW()
         WHERE user_id = #{userId} AND is_active = 1
+    </update>
+
+    <!--  아이디 찾기  -->
+    <select id="findIdByNameAndPhone" resultType="User">
+        SELECT email, is_active
+        FROM users
+        WHERE name = #{name} AND phone = #{phone}
+    </select>
+
+    <!--  비밀번호 재설정  -->
+    <update id="resetPassword">
+        UPDATE users
+        SET password = #{password}
+        WHERE user_id = #{userId}
+    </update>
+    
+    <!--  재활성화  -->
+    <update id="reActive">
+        UPDATE users
+        SET is_active = 1,
+            updated_at = NOW()
+        WHERE email = #{email} AND name = #{name} AND phone = #{phone} AND is_active = 0
     </update>
 </mapper>

@@ -1,5 +1,6 @@
 package com.eateum.eateumbe.user.service.profile;
 
+import com.eateum.eateumbe.global.error.ApiException;
 import com.eateum.eateumbe.user.domain.User;
 import com.eateum.eateumbe.user.dto.request.UpdateInfoRequest;
 import com.eateum.eateumbe.user.dto.response.UserInfoResponse;
@@ -8,6 +9,7 @@ import com.eateum.eateumbe.user.service.image.ProfileImageService;
 import com.eateum.eateumbe.user.service.reader.UserReader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,6 +36,7 @@ public class UserProfileServiceImpl implements UserProfileService {
         return UserInfoResponse.builder()
                 .email(user.getEmail())
                 .name(user.getName())
+                .phone(user.getPhone())
                 .profileImage(profileImageService.resolve(user.getProfileImage())) //프로필 이미지가 있는지?
                 .build();
     }
@@ -48,6 +51,17 @@ public class UserProfileServiceImpl implements UserProfileService {
         //이름 수정
         if(updateInfoRequest.getName() != null && !updateInfoRequest.getName().isBlank()) {
             user.setName(updateInfoRequest.getName());
+        }
+
+        //전화번호 수정
+        if(updateInfoRequest.getPhone() != null && !updateInfoRequest.getPhone().isBlank()) {
+
+            //기존과 다를 때만 중복 검사
+            if(!updateInfoRequest.getPhone().equals(user.getPhone()) && userMapper.existsByPhone(updateInfoRequest.getPhone()) > 0) {
+                throw new ApiException(HttpStatus.CONFLICT, "이미 사용 중인 전화번호입니다. 다시 확인해 주세요.");
+            }
+
+            user.setPhone(updateInfoRequest.getPhone());
         }
 
         //프로필 이미지 수정

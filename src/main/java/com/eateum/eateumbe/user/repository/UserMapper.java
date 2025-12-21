@@ -16,6 +16,9 @@ public interface UserMapper {
     //이메일 중복 확인
     int existsByEmail(String email);
 
+    //전화번호 중복 확인
+    int existsByPhone(String phone);
+
     //회원가입
     void insertUser(User user);
 
@@ -30,4 +33,16 @@ public interface UserMapper {
 
     //탈퇴
     int withdraw(String userId);
+
+    //아이디 찾기
+    User findIdByNameAndPhone(@Param("name") String name, @Param("phone") String phone);
+
+    //비밀번호 찾기
+    void resetPassword(@Param("userId") String userId, @Param("password") String password);
+
+    //비밀번호 찾기 시 정보 조회
+    User findByEmailAll(@Param("email") String email);
+
+    //재활성화
+    int reActive(@Param("email") String email, @Param("name")String name, @Param("phone") String phone);
 }

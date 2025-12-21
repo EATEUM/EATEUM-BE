@@ -3,6 +3,8 @@ package com.eateum.eateumbe.global.error;
 import com.eateum.eateumbe.global.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,6 +27,25 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(e.getStatus())
                 .body(ApiResponse.fail(e.getMessage()));
+    }
+
+    //DB UNIQUE 제약 조건 위반
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDuplicateKeyException(DuplicateKeyException e) {
+        log.warn("DuplicateKeyException 발생", e);
+        String message = "이미 사용 중인 값입니다.";
+
+        if(e.getMessage() != null) {
+            if(e.getMessage().contains("uk_users_email")) {
+                message = "이미 사용 중인 이메일입니다.";
+            } else if(e.getMessage().contains("uk_users_phone")) {
+                message = "이미 사용 중인 전화번호입니다.";
+            }
+        }
+
+        return  ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.fail(message));
     }
 
     //파일 업로드 예외

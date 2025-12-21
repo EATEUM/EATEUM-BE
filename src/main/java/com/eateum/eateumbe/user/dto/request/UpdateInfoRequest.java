@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class UpdateInfoRequest {
 
     private String name;
+    private String phone;
     //    private String profileImage; //프로필이미지 파일은 MultipartFile로만 처리
 
 }
