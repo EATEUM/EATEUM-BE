@@ -115,7 +115,7 @@ public class UserController {
     /**
      * 비밀번호 재확인 (프로필 진입 전)
      */
-    @PostMapping("/check-password")
+    @PostMapping("/password/check")
     public ApiResponse<Void> passwordCheck(@RequestBody @Valid PasswordCheckRequest passwordCheckRequest) {
         userAccountService.checkPassword(passwordCheckRequest.getPassword());
         return ApiResponse.success(null);
@@ -133,7 +133,7 @@ public class UserController {
     /**
      * 아이디 찾기
      */
-    @PostMapping("/find-id")
+    @PostMapping("/find/id")
     public ApiResponse<FindIdResponse> findId(@RequestBody @Valid FindIdRequest findIdRequest) {
         FindIdResponse findIdResponse = userAccountService.findId(findIdRequest);
         return ApiResponse.success(findIdResponse);
@@ -142,7 +142,7 @@ public class UserController {
     /**
      * 비밀번호 찾기 (=재설정)
      */
-    @PostMapping("/find-password")
+    @PostMapping("/find/password")
     public ApiResponse<PasswordResetResponse> findPassword(@RequestBody @Valid PasswordResetRequest passwordResetRequest) {
         PasswordResetResponse passwordResetResponse = userAccountService.resetPassword(passwordResetRequest);
         return ApiResponse.success(passwordResetResponse);
@@ -151,7 +151,7 @@ public class UserController {
     /**
      * 이메일 중복 확인
      */
-    @GetMapping("check-email")
+    @GetMapping("email/check")
     public ApiResponse<Void> checkEmail(@RequestParam String email) {
         userAccountService.checkEmailDuplicate(email);
         return ApiResponse.success(null);
