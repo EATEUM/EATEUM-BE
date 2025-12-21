@@ -85,12 +85,12 @@ public class SecurityConfig {
                             "/user/login",
                             "/user/reissue",
                             "/user/logout",
-                            "/user/find-id",
-                            "/user/find-password"
+                            "/user/find/id",
+                            "/user/find/password"
                     ).permitAll()
 
                     .requestMatchers(HttpMethod.GET,
-                            "user/check-email"
+                            "user/email/check"
                     ).permitAll()
 
                     //그 외 user는 전부 인증 필요
@@ -105,7 +105,7 @@ public class SecurityConfig {
         // 필터 순서
 
         // JWT 검증 필터 먼저 실행
-        http.addFilterAfter(
+        http.addFilterBefore(
                 jwtVerificationFilter,
                 ExceptionTranslationFilter.class
         );

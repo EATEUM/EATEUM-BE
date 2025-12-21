@@ -91,20 +91,21 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        log.info("shouldNotFilter path = {}", path);
+
         //OPTIONS 요청은 JWT 필터 제외
         if("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             return true;
         }
 
-        String path = request.getRequestURI();
-
         return path.startsWith("/user/login")
                 || path.startsWith("/user/signup")
                 || path.startsWith("/user/reissue")
                 || path.startsWith("/user/logout")
-                || path.startsWith("/user/find-id")
-                || path.startsWith("/user/find-password")
-                || path.startsWith("/user/check-email")
+                || path.startsWith("/user/find/id")
+                || path.startsWith("/user/find/password")
+                || path.startsWith("/user/email/check")
                 || path.startsWith("/v3/api-docs")
                 || path.startsWith("/swagger-ui");
     }
