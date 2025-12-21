@@ -10,5 +10,6 @@ import lombok.Getter;
 public class UserInfoResponse {
     private String email;
     private String name;
+    private String phone;
     private String profileImage;
 }
