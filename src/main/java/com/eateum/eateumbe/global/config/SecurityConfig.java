@@ -84,7 +84,13 @@ public class SecurityConfig {
                             "/user/signup",
                             "/user/login",
                             "/user/reissue",
-                            "/user/logout"
+                            "/user/logout",
+                            "/user/find-id",
+                            "/user/find-password"
+                    ).permitAll()
+
+                    .requestMatchers(HttpMethod.GET,
+                            "user/check-email"
                     ).permitAll()
 
                     //그 외 user는 전부 인증 필요
