@@ -28,6 +28,7 @@
         <result property="videoTitle" column="video_title"/>
         <result property="videoUrl" column="video_url"/>
         <result property="duration" column="duration"/>
+        <result property="thumbnailUrl" column="thumbnail_url"/>
         <result property="categoryId" column="category_id"/>
         <result property="categoryName" column="category_name"/>
         <collection property="steps" ofType="com.eateum.eateumbe.recipes.domain.Recipe$RecipeStep">
@@ -40,73 +41,70 @@
     <select id="selectRecipesByIds"
             resultMap="RecipeWithItemsMap">
         SELECT
-            rv.recipe_video_id,
-            rv.video_title,
-            rv.thumbnail_url,
-            rv.video_url,
-            rv.view_count,
-            rv.user_view_count, rv.duration,
-            i.item_id,
-            i.item_name
+        rv.recipe_video_id,
+        rv.video_title,
+        rv.thumbnail_url,
+        rv.video_url,
+        rv.view_count,
+        rv.user_view_count, rv.duration,
+        i.item_id,
+        i.item_name
         FROM recipe_video rv
-            LEFT JOIN recipe_items ri
-                   ON rv.recipe_video_id = ri.recipe_video_id
-            LEFT JOIN items i
-                   ON ri.item_id = i.item_id
+        LEFT JOIN recipe_items ri
+        ON rv.recipe_video_id = ri.recipe_video_id
+        LEFT JOIN items i
+        ON ri.item_id = i.item_id
         WHERE rv.recipe_video_id IN
-            <foreach item="recipeVideoId"
-                     collection="recipeVideoIds"
-                     open="("
-                     separator=","
-                     close=")">
-                #{recipeVideoId}
-            </foreach>
+        <foreach item="recipeVideoId"
+                 collection="recipeVideoIds"
+                 open="("
+                 separator=","
+                 close=")">
+            #{recipeVideoId}
+        </foreach>
         ORDER BY FIELD(
-            rv.recipe_video_id,
-            <foreach item="recipeVideoId"
-                     collection="recipeVideoIds"
-                     separator=",">
-                #{recipeVideoId}
-            </foreach>
+        rv.recipe_video_id,
+        <foreach item="recipeVideoId"
+                 collection="recipeVideoIds"
+                 separator=",">
+            #{recipeVideoId}
+        </foreach>
         )
     </select>
 
     <!-- 15분컷 스피드 요리 -->
     <select id="selectSpeedRecipes"
             resultMap="RecipeWithItemsMap">
-        SELECT
-            rv.recipe_video_id,
-            rv.video_title,
-            rv.thumbnail_url,
-            rv.video_url,
-            rv.view_count,
-            rv.user_view_count, rv.duration,
-            i.item_id,
-            i.item_name
+        SELECT rv.recipe_video_id,
+               rv.video_title,
+               rv.thumbnail_url,
+               rv.video_url,
+               rv.view_count,
+               rv.user_view_count,
+               rv.duration,
+               i.item_id,
+               i.item_name
         FROM recipe_video rv
-            JOIN (
-                SELECT recipe_video_id
-                FROM recipe_video
-                WHERE
-                    (
-                        video_title LIKE '%15분%'
-                        OR video_title LIKE '%10분%'
-                        OR video_title LIKE '%5분%'
-                        OR video_title LIKE '%간단%'
-                        OR video_title LIKE '%뚝딱%'
-                    )
-                    OR (
-                        duration IS NOT NULL
-                        AND LPAD(duration, 5, '0') &lt; '15:00' )
-                ORDER BY view_count DESC
-                LIMIT 3
-            ) top_recipes
-                ON rv.recipe_video_id = top_recipes.recipe_video_id
+                 JOIN (SELECT recipe_video_id
+                       FROM recipe_video
+                       WHERE (
+                           video_title LIKE '%15분%'
+                               OR video_title LIKE '%10분%'
+                               OR video_title LIKE '%5분%'
+                               OR video_title LIKE '%간단%'
+                               OR video_title LIKE '%뚝딱%'
+                           )
+                          OR (
+                           duration IS NOT NULL
+                               AND LPAD(duration, 5, '0') &lt; '15:00')
+                       ORDER BY view_count DESC
+                       LIMIT 3) top_recipes
+                      ON rv.recipe_video_id = top_recipes.recipe_video_id
 
-            LEFT JOIN recipe_items ri
-                   ON rv.recipe_video_id = ri.recipe_video_id
-            LEFT JOIN items i
-                   ON ri.item_id = i.item_id
+                 LEFT JOIN recipe_items ri
+                           ON rv.recipe_video_id = ri.recipe_video_id
+                 LEFT JOIN items i
+                           ON ri.item_id = i.item_id
 
         ORDER BY rv.view_count DESC
 
@@ -115,80 +113,68 @@
     <!-- 뜨고 있는 레시피 -->
     <select id="selectPopularRecipes"
             resultMap="RecipeWithItemsMap">
-        SELECT
-            rv.recipe_video_id,
-            rv.video_title,
-            rv.thumbnail_url,
-            rv.video_url,
-            rv.view_count,
-            rv.user_view_count,
-            rv.duration, i.item_id,
-            i.item_name
+        SELECT rv.recipe_video_id,
+               rv.video_title,
+               rv.thumbnail_url,
+               rv.video_url,
+               rv.view_count,
+               rv.user_view_count,
+               rv.duration,
+               i.item_id,
+               i.item_name
         FROM recipe_video rv
-            JOIN (
-                SELECT
-                    recipe_video_id
-                FROM
-                    recipe_video
-                ORDER BY
-                    user_view_count DESC,
-                    view_count DESC
-                LIMIT 3
-            ) top_recipes
-                ON rv.recipe_video_id = top_recipes.recipe_video_id
+                 JOIN (SELECT recipe_video_id
+                       FROM recipe_video
+                       ORDER BY user_view_count DESC,
+                                view_count DESC
+                       LIMIT 3) top_recipes
+                      ON rv.recipe_video_id = top_recipes.recipe_video_id
 
-            LEFT JOIN recipe_items ri ON rv.recipe_video_id = ri.recipe_video_id
-            LEFT JOIN items i ON ri.item_id = i.item_id
+                 LEFT JOIN recipe_items ri ON rv.recipe_video_id = ri.recipe_video_id
+                 LEFT JOIN items i ON ri.item_id = i.item_id
 
-        ORDER BY
-            rv.user_view_count DESC,
-            rv.view_count DESC
+        ORDER BY rv.user_view_count DESC,
+                 rv.view_count DESC
     </select>
 
     <!-- 레시피 상세 조회 -->
     <select id="selectRecipeDetail" resultMap="recipeDetailMap">
-        SELECT
-            rv.recipe_video_id,
-            rv.video_title,
-            rv.video_url,
-            rv.duration,
-            rv.category_id,
-            rs.step_number,
-            rs.step_title,
-            rs.content
+        SELECT rv.recipe_video_id,
+               rv.video_title,
+               rv.video_url,
+               rv.duration,
+               rv.category_id,
+               rs.step_number,
+               rs.step_title,
+               rs.content
         FROM recipe_video rv
-        LEFT JOIN recipe_steps rs ON rv.recipe_video_id = rs.recipe_video_id
+                 LEFT JOIN recipe_steps rs ON rv.recipe_video_id = rs.recipe_video_id
         WHERE rv.recipe_video_id = #{recipeVideoId}
         ORDER BY rs.step_number
     </select>
 
     <!-- 좋아요 -->
     <select id="selectIsLiked" resultType="boolean">
-        SELECT EXISTS (
-            SELECT 1
-            FROM liked_recipe
-            WHERE recipe_video_id = #{recipeVideoId}
-              AND user_id = #{userId}
-        )
+        SELECT EXISTS (SELECT 1
+                       FROM liked_recipe
+                       WHERE recipe_video_id = #{recipeVideoId}
+                         AND user_id = #{userId})
     </select>
 
     <!-- 완료  -->
     <select id="selectIsCompleted" resultType="boolean">
-        SELECT EXISTS (
-            SELECT 1
-            FROM completed_recipe
-            WHERE recipe_video_id = #{recipeVideoId}
-              AND user_id = #{userId}
-        )
+        SELECT EXISTS (SELECT 1
+                       FROM completed_recipe
+                       WHERE recipe_video_id = #{recipeVideoId}
+                         AND user_id = #{userId})
     </select>
 
     <!-- 추천 영상 조회 -->
     <select id="selectRelatedVideos" resultMap="recipeDetailMap">
-        SELECT
-            recipe_video_id,
-            video_title,
-            thumbnail_url,
-            duration
+        SELECT recipe_video_id,
+               video_title,
+               thumbnail_url,
+               duration
         FROM recipe_video
         WHERE category_id = #{categoryId}
           AND recipe_video_id != #{recipeVideoId}
@@ -204,18 +190,19 @@
 
     <!-- 좋아요 취소  -->
     <delete id="deleteLike">
-        DELETE FROM liked_recipe
-        WHERE user_id = #{userId} AND recipe_video_id = #{recipeVideoId}
+        DELETE
+        FROM liked_recipe
+        WHERE user_id = #{userId}
+          AND recipe_video_id = #{recipeVideoId}
     </delete>
 
     <!--  완성 레시피 조회   -->
     <select id="selectCompletedRecipes" resultType="Recipe">
-        SELECT
-            rv.recipe_video_id,
-            rv.video_title,
-            rv.thumbnail_url
-            FROM recipe_video rv
-        JOIN completed_recipe cr ON rv.recipe_video_id = cr.recipe_video_id
+        SELECT rv.recipe_video_id,
+               rv.video_title,
+               rv.thumbnail_url
+        FROM recipe_video rv
+                 JOIN completed_recipe cr ON rv.recipe_video_id = cr.recipe_video_id
         WHERE cr.user_id = #{userId}
         ORDER BY cr.completed_at DESC
         LIMIT #{size} OFFSET #{offset}
@@ -236,19 +223,20 @@
 
     <!--  완성 취소   -->
     <delete id="deleteComplete">
-        DELETE FROM completed_recipe
-        WHERE user_id = #{userId} AND recipe_video_id = #{recipeVideoId}
+        DELETE
+        FROM completed_recipe
+        WHERE user_id = #{userId}
+          AND recipe_video_id = #{recipeVideoId}
     </delete>
 
 
     <!--  좋아요 레시피 조회   -->
     <select id="selectLikedRecipes" resultType="Recipe">
-        SELECT
-            rv.recipe_video_id,
-            rv.video_title,
-            rv.thumbnail_url
-            FROM recipe_video rv
-        JOIN liked_recipe cr ON rv.recipe_video_id = cr.recipe_video_id
+        SELECT rv.recipe_video_id,
+               rv.video_title,
+               rv.thumbnail_url
+        FROM recipe_video rv
+                 JOIN liked_recipe cr ON rv.recipe_video_id = cr.recipe_video_id
         WHERE cr.user_id = #{userId}
         ORDER BY cr.created_at DESC
         LIMIT #{size} OFFSET #{offset}
@@ -263,9 +251,8 @@
 
     <!--  월별 완료 레시피 대시보드   -->
     <select id="selectMonthlyCompletedStats" resultType="map">
-        SELECT
-            MONTH(completed_at) as month,
-            COUNT(*) as count
+        SELECT MONTH(completed_at) as month,
+               COUNT(*)            as count
         FROM completed_recipe
         WHERE user_id = #{userId}
           AND completed_at >= #{startDate}
@@ -275,12 +262,11 @@
 
     <!--  좋아요 레시피 비율 대시보드   -->
     <select id="selectLikedCategoryStats" resultType="map">
-        SELECT
-            c.category_name as categoryName,
-            COUNT(*) as count
+        SELECT c.category_name as categoryName,
+               COUNT(*)        as count
         FROM liked_recipe lr
-        JOIN recipe_video rv ON lr.recipe_video_id = rv.recipe_video_id
-        JOIN category c ON rv.category_id = c.category_id
+                 JOIN recipe_video rv ON lr.recipe_video_id = rv.recipe_video_id
+                 JOIN category c ON rv.category_id = c.category_id
         WHERE lr.user_id = #{userId}
         GROUP BY c.category_name
     </select>
