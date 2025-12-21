@@ -3,8 +3,9 @@ package com.eateum.eateumbe.user.service.account;
 import com.eateum.eateumbe.global.error.ApiException;
 import com.eateum.eateumbe.global.redis.RefreshTokenService;
 import com.eateum.eateumbe.user.domain.User;
-import com.eateum.eateumbe.user.dto.request.PasswordChangeRequest;
-import com.eateum.eateumbe.user.dto.request.SignupRequest;
+import com.eateum.eateumbe.user.dto.request.*;
+import com.eateum.eateumbe.user.dto.response.FindIdResponse;
+import com.eateum.eateumbe.user.dto.response.PasswordResetResponse;
 import com.eateum.eateumbe.user.repository.UserMapper;
 import com.eateum.eateumbe.user.service.image.ProfileImageService;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,11 @@ public class UserAccountServiceImpl implements UserAccountService {
             throw new ApiException(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다.");
         }
 
+        //전화번호 중복 체크
+        if(userMapper.existsByPhone(signupRequest.getPhone()) > 0) {
+            throw new ApiException(HttpStatus.CONFLICT, "입력하신 전화번호로 이미 가입된 계정이 있습니다. 아이디 찾기를 통해 확인해주세요.");
+        }
+
         //프로필 이미지 업로드
         String imageUrl = null;
         if(profileImage != null && !profileImage.isEmpty()) {
@@ -54,6 +60,7 @@ public class UserAccountServiceImpl implements UserAccountService {
                 .email(signupRequest.getEmail())
                 .password(passwordEncoder.encode(signupRequest.getPassword()))
                 .name(signupRequest.getName())
+                .phone(signupRequest.getPhone())
                 .profileImage(imageUrl)
                 .build();
 
@@ -129,6 +136,66 @@ public class UserAccountServiceImpl implements UserAccountService {
         refreshTokenService.delete(userId);
     }
 
+    /**
+     * 아이디(=이메일) 찾기
+     */
+    @Override
+    public FindIdResponse findId(FindIdRequest findIdRequest) {
 
+        User user = userMapper.findIdByNameAndPhone(findIdRequest.getName(), findIdRequest.getPhone());
 
+        //아예 존재하지 않는다면
+        if (user == null) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "입력한 정보와 일치하는 사용자를 찾을 수 없습니다.");
+        }
+
+        //존재하는 사용자라면
+        return new FindIdResponse(user.getEmail(), user.getIsActive() == 1);
+    }
+
+    /**
+     * 비밀번호 재설정
+     */
+    @Override
+    public PasswordResetResponse resetPassword(PasswordResetRequest passwordResetRequest) {
+        
+        User user = userMapper.findByEmailAll(passwordResetRequest.getEmail());
+        if (user == null) {
+            throw new ApiException(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다.");
+        }
+        
+        //본인 검증
+        if (!user.getName().equals(passwordResetRequest.getName())
+                || !user.getPhone().equals(passwordResetRequest.getPhone())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "사용자 정보가 일치하지 않습니다.");
+        }
+
+        //비밀번호 확인
+        if(!passwordResetRequest.getNewPassword().equals(passwordResetRequest.getConfirmPassword())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다.");
+        }
+        
+        //비밀번호 변경
+        userMapper.resetPassword(user.getUserId(), passwordEncoder.encode(passwordResetRequest.getNewPassword()));
+
+        //탈퇴 사용자면 재활성화
+        if(user.getIsActive() == 0) {
+            userMapper.reActive(user.getEmail(), user.getName(), user.getPhone());
+            return new PasswordResetResponse(
+                    "탈퇴한 계정이 재활성화되었습니다. 새 비밀번호로 로그인해주세요.",
+                    true);
+        }
+
+        return new PasswordResetResponse(
+                "비밀번호가 변경되었습니다. 다시 로그인해주세요.",
+                false
+        );
+    }
+
+    @Override
+    public void checkEmailDuplicate(String email) {
+        if(userMapper.existsByEmail(email) > 0) {
+            throw new ApiException(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다.");
+        }
+    }
 }
