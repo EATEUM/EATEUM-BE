@@ -4,7 +4,9 @@ import lombok.*;
 
 import java.util.List;
 
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(of = "recipeVideoId")
 public class Recipe {
 
     private Long recipeVideoId;

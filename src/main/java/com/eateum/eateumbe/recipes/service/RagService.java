@@ -1,6 +1,5 @@
 package com.eateum.eateumbe.recipes.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +23,7 @@ public class RagService {
     private String ragApiUrl;
 
     public List<Long> getRecommendedIds(List<String> selectedItems) {
+
         try {
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("selectedItems", selectedItems);
