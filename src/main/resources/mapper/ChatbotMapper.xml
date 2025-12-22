@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eateum.eateumbe.chat.repository.ChatbotMapper">
+
+    <!--  최근 완성 레시피  -->
+    <select id="selectRecentCompletedRecipes" resultType="RecipeBrief">
+        SELECT
+            rv.recipe_video_id,
+            rv.video_title,
+            rv.video_url,
+            c.category_name
+        FROM completed_recipe cr
+        JOIN recipe_video rv ON cr.recipe_video_id = rv.recipe_video_id
+        LEFT JOIN category c ON rv.category_id = c.category_id
+        WHERE cr.user_id = #{userId}
+        ORDER BY cr.completed_at DESC
+        LIMIT 3
+    </select>
+
+    <!--  최근 좋아요 레시피  -->
+    <select id="selectRecentLikedRecipes" resultType="RecipeBrief">
+        SELECT
+            rv.recipe_video_id,
+            rv.video_title,
+            rv.video_url,
+            c.category_name
+        FROM liked_recipe lr
+        JOIN recipe_video rv ON lr.recipe_video_id = rv.recipe_video_id
+        LEFT JOIN category c ON rv.category_id = c.category_id
+        WHERE lr.user_id = #{userId}
+        ORDER BY lr.created_at DESC
+        LIMIT 3
+    </select>
+
+    <!--  선호 카테고리  -->
+    <select id="selectTopCategories" resultType="CategoryStat">
+        SELECT
+            c.category_name,
+            COUNT(*) AS count
+        FROM completed_recipe cr
+        JOIN recipe_video rv ON cr.recipe_video_id = rv.recipe_video_id
+        JOIN category c ON rv.category_id = c.category_id
+        WHERE cr.user_id = #{userId}
+        GROUP BY c.category_name
+        ORDER BY count DESC
+        LIMIT 3
+    </select>
+
+    <!--  최근 메모  -->
+    <select id="selectRecentMemos" resultType="RecipeMemoBrief">
+        SELECT
+            rv.video_title,
+            rv.video_url,
+            rm.content
+        FROM recipe_memo rm
+        JOIN recipe_video rv ON rm.recipe_video_id = rv.recipe_video_id
+        WHERE rm.user_id = #{userId}
+        ORDER BY rm.created_at DESC
+        LIMIT 3
+    </select>
+
+    <!--  레시피 단계  -->
+    <select id="selectStepsByRecipeIds" resultType="RecipeStep">
+        SELECT
+        step_id,
+        recipe_video_id,
+        step_number,
+        step_title,
+        content
+        FROM recipe_steps
+        WHERE recipe_video_id IN
+        <foreach collection="recipeVideoIds" item="id"
+                 open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        ORDER BY recipe_video_id, step_number
+    </select>
+
+</mapper>
