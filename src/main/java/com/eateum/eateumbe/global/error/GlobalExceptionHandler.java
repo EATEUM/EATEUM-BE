@@ -11,11 +11,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
-/**
- * [전역 예외 처리기] : Controller / Service 계층에서 발생하는 예외를 처리
- *
- * - ApiException을 공통 응답 포맷(ApiResponse)으로 변환
- */
 @Slf4j
 @Hidden
 @RestControllerAdvice
@@ -48,7 +43,15 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.fail(message));
     }
 
-    //파일 업로드 예외
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(IllegalArgumentException e) {
+        log.warn("입력값 오류: {}", e.getMessage());
+        return ResponseEntity
+                .badRequest()
+                .body(ApiResponse.fail(e.getMessage()));
+    }
+
+    // 파일 업로드 예외
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ApiResponse<Void>> handleMaxUploadSizeExceeded(
             MaxUploadSizeExceededException e

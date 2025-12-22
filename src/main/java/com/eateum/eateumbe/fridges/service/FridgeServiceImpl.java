@@ -5,6 +5,7 @@ import java.util.List;
 import com.eateum.eateumbe.fridges.domain.Fridge;
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FridgeServiceImpl implements FridgeService {
 
     private final FridgeMapper fridgeMapper;
@@ -72,19 +74,29 @@ public class FridgeServiceImpl implements FridgeService {
     @Override
     @Transactional
     public AddItem addItem(String userId, FridgeRequest request) {
-
-        //비회원은 재료 추가 불가
-        if("guest".equalsIgnoreCase(userId)){
+        if ("guest".equalsIgnoreCase(userId)) {
             throw new IllegalArgumentException("재료를 저장하려면 로그인이 필요합니다.");
         }
 
-        fridgeMapper.addFridgeItem(userId, request.getItemId());
+        // 1. 현재 사용자의 냉장고 재료 이름 리스트를 가져옴
+        List<String> currentItems = fridgeMapper.selectItemNamesByUserId(userId);
 
-        Fridge entity = fridgeMapper.selectItemDetail(request.getItemId());
+        // 2. 추가하려는 재료의 정보를 가져옴
+        Fridge targetItem = fridgeMapper.selectItemDetail(request.getItemId());
 
-        return AddItem.from(entity);
+        // 3. 중복 체크
+        if (targetItem != null && currentItems.contains(targetItem.getItemName())) {
+            throw new IllegalArgumentException("이미 냉장고에 존재하는 재료입니다.");
+        }
+
+        try {
+            fridgeMapper.addFridgeItem(userId, request.getItemId());
+        } catch (Exception e) {
+            throw new RuntimeException("재료 추가 중 서버 오류가 발생했습니다.");
+        }
+
+        return AddItem.from(targetItem);
     }
-
     //재료 삭제
     @Override
     @Transactional
@@ -114,13 +126,24 @@ public class FridgeServiceImpl implements FridgeService {
     @Override
     @Transactional
     public void addItems(String userId, List<Long> itemIds) {
-        //비회원은 재료 추가 불가
-        if("guest".equalsIgnoreCase(userId)){
+        // 1. 비회원 체크
+        if ("guest".equalsIgnoreCase(userId)) {
             throw new IllegalArgumentException("재료를 저장하려면 로그인이 필요합니다.");
         }
 
-        if(itemIds != null && !itemIds.isEmpty()){
-            fridgeMapper.addFridgeItems(userId, itemIds);
+        if (itemIds == null || itemIds.isEmpty()) return;
+
+        List<String> currentItemNames = fridgeMapper.selectItemNamesByUserId(userId);
+
+        List<Long> newItemsToSave = itemIds.stream()
+                .filter(itemId -> {
+                    Fridge item = fridgeMapper.selectItemDetail(itemId);
+                    return item != null && !currentItemNames.contains(item.getItemName());
+                })
+                .toList();
+
+        if (!newItemsToSave.isEmpty()) {
+            fridgeMapper.addFridgeItems(userId, newItemsToSave);
         }
     }
 }
