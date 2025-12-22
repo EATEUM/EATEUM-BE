@@ -86,17 +86,20 @@ public class SecurityConfig {
                             "/user/reissue",
                             "/user/logout",
                             "/user/find/id",
-                            "/user/find/password"
+                            "/user/find/password",
+                            "/chat/guest"
                     ).permitAll()
 
                     .requestMatchers(HttpMethod.GET,
-                            "user/email/check"
+                            "user/email/check",
+                            "/chat/guest/history"
                     ).permitAll()
 
-                    //그 외 user는 전부 인증 필요
+                    //그 외는 전부 인증 필요
                     .requestMatchers("/user/**").authenticated()
                     .requestMatchers("/recipes/*/memo/**").authenticated()
                     .requestMatchers("/recipes/my/**").authenticated()
+                    .requestMatchers("/chat/**").authenticated()
 
                     //나머지 API는 일단 열어두고 추후 수정
                     .anyRequest().permitAll()
