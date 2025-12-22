@@ -1,6 +1,5 @@
 package com.eateum.eateumbe.user.service.auth;
 
-import com.eateum.eateumbe.chat.memory.ChatMemory;
 import com.eateum.eateumbe.chat.memory.ChatMemoryRouter;
 import com.eateum.eateumbe.global.error.ApiException;
 import com.eateum.eateumbe.global.jwt.JwtProperties;
@@ -14,7 +13,6 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;

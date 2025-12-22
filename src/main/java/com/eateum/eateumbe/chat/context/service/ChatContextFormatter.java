@@ -7,7 +7,6 @@ import com.eateum.eateumbe.chat.context.dto.UserChatContext;
 import com.eateum.eateumbe.chat.dto.response.RecipeStep;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**

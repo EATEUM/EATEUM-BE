@@ -1,7 +1,5 @@
 package com.eateum.eateumbe.chat.memory;
 
-import org.springframework.ai.openai.api.OpenAiApi;
-
 import java.util.List;
 
 /**

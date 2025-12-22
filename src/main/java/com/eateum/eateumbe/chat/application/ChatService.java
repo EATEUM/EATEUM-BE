@@ -14,7 +14,7 @@ public interface ChatService {
     String chatForGuest(String sessionId, String message);
 
     //ChatResponse
-    public String chatForMember(String userId, String message);
+    String chatForMember(String userId, String message);
 
     //비회원 히스토리 조회
     List<ChatMessage> getHistoryForGuest(String sessionId);

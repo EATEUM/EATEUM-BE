@@ -4,9 +4,7 @@ import com.eateum.eateumbe.chat.dto.response.RecipeStep;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.awt.*;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 회원 챗봇 응답을 위한 사용자 컨텍스트 데이터
