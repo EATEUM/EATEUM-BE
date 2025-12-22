@@ -106,6 +106,7 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
                 || path.startsWith("/user/find/id")
                 || path.startsWith("/user/find/password")
                 || path.startsWith("/user/email/check")
+                || path.startsWith("/chat/guest")
                 || path.startsWith("/v3/api-docs")
                 || path.startsWith("/swagger-ui");
     }
