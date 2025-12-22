@@ -1,5 +1,7 @@
 package com.eateum.eateumbe.user.service.auth;
 
+import com.eateum.eateumbe.chat.memory.ChatMemory;
+import com.eateum.eateumbe.chat.memory.ChatMemoryRouter;
 import com.eateum.eateumbe.global.error.ApiException;
 import com.eateum.eateumbe.global.jwt.JwtProperties;
 import com.eateum.eateumbe.global.jwt.JwtProvider;
@@ -12,6 +14,7 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,6 +38,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtProvider jwtProvider;
     private final RefreshTokenService refreshTokenService;
     private final JwtProperties jwtProperties;
+    private final ChatMemoryRouter memoryRouter;
 
     /**
      * 로그인 시 비밀번호를 검증하고 JWT토큰을 발행
@@ -148,6 +152,9 @@ public class AuthServiceImpl implements AuthService {
                 //Redis에서 RefreshToken 삭제
                 refreshTokenService.delete(userId);
                 log.info("[Logout] refresh token deleted. userId={}", userId);
+
+                //Redis에서 챗봇 대화 기록 삭제
+                memoryRouter.getForMember().clear(userId);
 
             } catch (Exception e) {
                 //만료 or 위조 토큰이어도 로그아웃은 성공 처리
