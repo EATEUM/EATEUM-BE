@@ -75,16 +75,13 @@ public class FridgeController extends BaseController {
     /*
     재료 삭제(단건 삭제)
      */
-    @DeleteMapping
+    @DeleteMapping("/{itemId}")
     public ApiResponse<Void> deleteItem(
             @AuthenticationPrincipal String userId,
-            @RequestParam("itemId") Long itemId
-    ) {
+            @PathVariable("itemId") Long itemId) { // @RequestParam -> @PathVariable 변경
 
         String safeUserId = resolveUserId(userId);
-
         fridgeService.deleteItem(safeUserId, itemId);
-
         return new ApiResponse<>(true, "재료 삭제 완료", null);
     }
 
