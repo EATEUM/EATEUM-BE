@@ -11,7 +11,7 @@
     <select id="selectFridgeListByUserId" resultType="com.eateum.eateumbe.fridges.domain.Fridge">
         SELECT i.item_id, i.item_name, i.item_img, f.user_id, f.created_at
         FROM fridge_item f
-        JOIN items i ON f.item_id = i.item_id
+                 JOIN items i ON f.item_id = i.item_id
         WHERE f.user_id = #{userId}
         ORDER BY f.created_at DESC
         LIMIT #{size} OFFSET #{offset}
@@ -25,7 +25,7 @@
     </select>
 
     <!--  사용자가 "파" 하나만 입력해도 파스타면, 파가 찾아진다. 이후 이름 순으로 오름차순 정렬하여 사용자에게 보여짐 -->
-    <select id = "searchItem" resultType= "com.eateum.eateumbe.fridges.domain.Fridge">
+    <select id="searchItem" resultType="com.eateum.eateumbe.fridges.domain.Fridge">
         SELECT item_id, item_name, item_img
         FROM items
         WHERE item_name Like CONCAT('%', #{keyword}, '%')
@@ -38,23 +38,23 @@
         VALUES (#{userId}, #{itemId}, NOW())
     </insert>
     <select id="selectItemDetail" resultType="com.eateum.eateumbe.fridges.domain.Fridge">
-        SELECT
-            item_id,
-            item_name,
-            item_img
+        SELECT item_id,
+               item_name,
+               item_img
         FROM items
         WHERE item_id = #{itemId}
     </select>
 
     <!--    재료 삭제 -->
     <delete id="deleteItem">
-        DELETE FROM fridge_item
+        DELETE
+        FROM fridge_item
         WHERE user_id = #{userId}
-        AND item_id = #{itemId}
+          AND item_id = #{itemId}
     </delete>
 
 
-<!--    AI 이미지 인식 후 DB에서 재료 조회-->
+    <!-- AI 이미지 인식 후 DB에서 재료 조회-->
     <select id="selectItemsByNames" resultType="com.eateum.eateumbe.fridges.domain.Fridge">
         SELECT
         item_id,
@@ -67,20 +67,20 @@
         </foreach>
     </select>
 
-<!-- 회원일 경우, 재료의 이름 리스트 조회-->
+    <!-- 회원일 경우, 재료의 이름 리스트 조회-->
     <select id="selectItemNamesByUserId" resultType="string">
         SELECT i.item_name
         FROM fridge_item fi
-        JOIN items i ON fi.item_id = i.item_id
+                 JOIN items i ON fi.item_id = i.item_id
         WHERE fi.user_id = #{userId}
     </select>
-<!--    DB에서 재료를 조회 하고 사용자가 선택한 재료 추가-->
+    <!--    DB에서 재료를 조회 하고 사용자가 선택한 재료 추가-->
     <insert id="addFridgeItems">
         INSERT INTO fridge_item(user_id, item_id, created_at)
         VALUES
-            <foreach collection="itemIds" item="itemId" separator=",">
-                (#{userId}, #{itemId}, NOW())
-            </foreach>
+        <foreach collection="itemIds" item="itemId" separator=",">
+            (#{userId}, #{itemId}, NOW())
+        </foreach>
     </insert>
 
 </mapper>

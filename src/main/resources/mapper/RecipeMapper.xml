@@ -45,7 +45,7 @@
                  JOIN items i ON ri.item_id = i.item_id
         WHERE ri.recipe_video_id = #{recipeVideoId}
     </select>
-    
+
     <select id="selectRecipesByIds" resultMap="RecipeWithItemsMap">
         SELECT
         rv.recipe_video_id,
@@ -54,8 +54,10 @@
         rv.video_url,
         rv.view_count,
         rv.user_view_count,
-        rv.duration
-        FROM recipe_video rv
+        rv.duration,
+        i.item_id, i.item_name FROM recipe_video rv
+        LEFT JOIN recipe_items ri ON rv.recipe_video_id = ri.recipe_video_id
+        LEFT JOIN items i ON ri.item_id = i.item_id
         WHERE rv.recipe_video_id IN
         <foreach item="recipeVideoId" collection="recipeVideoIds"
                  open="(" separator="," close=")">
@@ -66,9 +68,9 @@
             #{recipeVideoId}
         </foreach>)
     </select>
+
     <!-- 15분컷 스피드 요리 -->
-    <select id="selectSpeedRecipes"
-            resultMap="RecipeWithItemsMap">
+    <select id="selectSpeedRecipes" resultMap="RecipeWithItemsMap">
         SELECT rv.recipe_video_id,
                rv.video_title,
                rv.thumbnail_url,
@@ -79,7 +81,17 @@
                i.item_id,
                i.item_name
         FROM recipe_video rv
-                 JOIN (SELECT recipe_video_id
+                 JOIN (SELECT recipe_video_id,
+                              CASE
+                                  WHEN (
+                                      video_title LIKE '%15분%'
+                                          OR video_title LIKE '%10분%'
+                                          OR video_title LIKE '%5분%'
+                                          OR video_title LIKE '%간단%'
+                                          OR video_title LIKE '%뚝딱%'
+                                          OR video_title LIKE '%간편%') THEN 1
+                                  ELSE 2
+                                  END AS sort_priority
                        FROM recipe_video
                        WHERE (
                            video_title LIKE '%15분%'
@@ -87,11 +99,13 @@
                                OR video_title LIKE '%5분%'
                                OR video_title LIKE '%간단%'
                                OR video_title LIKE '%뚝딱%'
+                               OR video_title LIKE '%간편%'
                            )
                           OR (
                            duration IS NOT NULL
                                AND LPAD(duration, 5, '0') &lt; '15:00')
-                       ORDER BY view_count DESC
+
+                       ORDER BY sort_priority ASC, view_count DESC
                        LIMIT 9) top_recipes
                       ON rv.recipe_video_id = top_recipes.recipe_video_id
 
@@ -100,8 +114,7 @@
                  LEFT JOIN items i
                            ON ri.item_id = i.item_id
 
-        ORDER BY rv.view_count DESC
-
+        ORDER BY top_recipes.sort_priority ASC, rv.view_count DESC
     </select>
 
     <!-- 뜨고 있는 레시피 -->
