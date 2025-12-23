@@ -1,5 +1,7 @@
 package com.eateum.eateumbe.user.service.account;
 
+import com.eateum.eateumbe.fridges.domain.Fridge;
+import com.eateum.eateumbe.fridges.repository.FridgeMapper;
 import com.eateum.eateumbe.global.error.ApiException;
 import com.eateum.eateumbe.global.redis.RefreshTokenService;
 import com.eateum.eateumbe.user.domain.User;
@@ -16,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -31,6 +34,7 @@ public class UserAccountServiceImpl implements UserAccountService {
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
     private final ProfileImageService profileImageService;
+    private final FridgeMapper fridgeMapper;
 
     /**
      * 회원가입
@@ -65,6 +69,12 @@ public class UserAccountServiceImpl implements UserAccountService {
                 .build();
 
         userMapper.insertUser(user);
+
+        List<String> defaultNames = List.of("돼지고기", "스팸", "달걀", "김치", "라면", "양파", "파");
+        List<Fridge> defaultItems = fridgeMapper.selectItemsByNames(defaultNames);
+        List<Long> itemIds = defaultItems.stream().map(Fridge::getItemId).toList();
+
+        fridgeMapper.addFridgeItems(user.getUserId(), itemIds);
     }
 
 
