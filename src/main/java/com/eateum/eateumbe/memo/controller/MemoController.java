@@ -22,11 +22,10 @@ public class MemoController extends BaseController {
     @Operation(summary = "메모 조회")
     @GetMapping
     public ApiResponse<List<MemoResponse>> getMemosByRecipe(
-        @AuthenticationPrincipal String userId,
-        @PathVariable("recipe_video_id") Long recipeVideoId
-    ) {
-
-        List<MemoResponse> response = memoService.getMemosByRecipe(recipeVideoId, userId);
+            @AuthenticationPrincipal String userId,
+            @PathVariable("recipe_video_id") Long recipeVideoId) {
+        String safeUserId = requireAuth(userId);
+        List<MemoResponse> response = memoService.getMemosByRecipe(recipeVideoId, safeUserId);
 
         return ApiResponse.success(response);
     }
@@ -34,22 +33,22 @@ public class MemoController extends BaseController {
     @Operation(summary = "메모 등록")
     @PostMapping
     public ApiResponse<MemoResponse> createMemo(
-        @AuthenticationPrincipal String userId,
-        @PathVariable("recipe_video_id") Long recipeVideoId,
-        @RequestBody MemoRequest request
-    ) {
-        MemoResponse response = memoService.createMemo(recipeVideoId, userId, request);
+            @AuthenticationPrincipal String userId,
+            @PathVariable("recipe_video_id") Long recipeVideoId,
+            @RequestBody MemoRequest request) {
+        String safeUserId = requireAuth(userId);
+        MemoResponse response = memoService.createMemo(recipeVideoId, safeUserId, request);
         return ApiResponse.success(response);
     }
 
     @Operation(summary = "메모 삭제")
     @DeleteMapping("/{memo_id}")
     public ApiResponse<Void> deleteMemo(
-        @AuthenticationPrincipal String userId,
-        @PathVariable("recipe_video_id") Long recipeVideoId,
-        @PathVariable("memo_id") Long memoId
-    ) {
-        memoService.deleteMemo(memoId, userId);
+            @AuthenticationPrincipal String userId,
+            @PathVariable("recipe_video_id") Long recipeVideoId,
+            @PathVariable("memo_id") Long memoId) {
+        String safeUserId = requireAuth(userId);
+        memoService.deleteMemo(memoId, safeUserId);
         return ApiResponse.success(null);
     }
 }
