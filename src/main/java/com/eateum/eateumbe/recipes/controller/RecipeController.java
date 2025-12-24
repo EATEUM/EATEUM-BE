@@ -3,7 +3,6 @@ package com.eateum.eateumbe.recipes.controller;
 import com.eateum.eateumbe.global.common.ApiResponse;
 import com.eateum.eateumbe.global.common.BaseController;
 import com.eateum.eateumbe.global.common.PageResponse;
-import com.eateum.eateumbe.global.error.ApiException;
 import com.eateum.eateumbe.recipes.dto.request.RecipeRequest;
 import com.eateum.eateumbe.recipes.dto.response.RecipeDashboardResponse;
 import com.eateum.eateumbe.recipes.dto.response.RecipeDetailResponse;
@@ -11,7 +10,6 @@ import com.eateum.eateumbe.recipes.dto.response.RecipeResponse;
 import com.eateum.eateumbe.recipes.service.RecipeService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +24,8 @@ public class RecipeController extends BaseController {
 
     @Operation(summary = "AI 추천 레시피")
     @PostMapping("/recommend/ai")
-    public ApiResponse<List<RecipeResponse.Recommend>> recommendAi(@AuthenticationPrincipal String userId, @RequestBody RecipeRequest.Recommend request) {
+    public ApiResponse<List<RecipeResponse.Recommend>> recommendAi(@AuthenticationPrincipal String userId,
+            @RequestBody RecipeRequest.Recommend request) {
 
         String safeUserId = resolveUserId(userId);
 
@@ -52,16 +51,15 @@ public class RecipeController extends BaseController {
     @Operation(summary = "레시피 상세 조회")
     @GetMapping("/{recipe_video_id}/detail")
     public ApiResponse<RecipeDetailResponse> getRecipeDetail(
-        @AuthenticationPrincipal String userId,
-        @PathVariable("recipe_video_id") Long recipeVideoId,
-        @RequestParam(value = "include_memo", defaultValue = "false") boolean includeMemo
-    ){
+            @AuthenticationPrincipal String userId,
+            @PathVariable("recipe_video_id") Long recipeVideoId,
+            @RequestParam(value = "include_memo", defaultValue = "false") boolean includeMemo) {
         String safeUserId = resolveUserId(userId);
 
         RecipeDetailResponse response = recipeService.getRecipeDetail(
-            safeUserId,
-            recipeVideoId,
-            includeMemo
+                safeUserId,
+                recipeVideoId,
+                includeMemo
 
         );
         return ApiResponse.success(response);
@@ -73,17 +71,17 @@ public class RecipeController extends BaseController {
             @AuthenticationPrincipal String userId,
             @RequestParam("status") String status,
             @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "9") int size
-    ) {
-
-        PageResponse<RecipeResponse.Status> result =  recipeService.getStatusRecipes(userId, status, page, size);
+            @RequestParam(value = "size", defaultValue = "9") int size) {
+        String safeUserId = requireAuth(userId);
+        PageResponse<RecipeResponse.Status> result = recipeService.getStatusRecipes(safeUserId, status, page, size);
         return ApiResponse.success(result);
     }
 
     @Operation(summary = "마이페이지 대시보드")
     @GetMapping("my/dashboard")
     public ApiResponse<RecipeDashboardResponse> getDashboardRecipes(@AuthenticationPrincipal String userId) {
-        RecipeDashboardResponse response = recipeService.getRecipeDashboard(userId);
+        String safeUserId = requireAuth(userId);
+        RecipeDashboardResponse response = recipeService.getRecipeDashboard(safeUserId);
         return ApiResponse.success(response);
     }
 
@@ -93,12 +91,8 @@ public class RecipeController extends BaseController {
             @AuthenticationPrincipal String userId,
             @PathVariable("recipe_video_id") Long recipeVideoId
 
-    ){
-        String safeUserId = resolveUserId(userId);
-
-        if ("guest".equals(safeUserId)) {
-            throw new ApiException(HttpStatus.UNAUTHORIZED, "로그인이 필요한 기능입니다.");
-        }
+    ) {
+        String safeUserId = requireAuth(userId);
 
         recipeService.buttonLike(safeUserId, recipeVideoId);
         return ApiResponse.success(null);
@@ -110,12 +104,8 @@ public class RecipeController extends BaseController {
             @AuthenticationPrincipal String userId,
             @PathVariable("recipe_video_id") Long recipeVideoId
 
-    ){
-        String safeUserId = resolveUserId(userId);
-
-        if ("guest".equals(safeUserId)) {
-            throw new ApiException(HttpStatus.UNAUTHORIZED, "로그인이 필요한 기능입니다.");
-        }
+    ) {
+        String safeUserId = requireAuth(userId);
 
         recipeService.buttonComplete(safeUserId, recipeVideoId);
         return ApiResponse.success(null);

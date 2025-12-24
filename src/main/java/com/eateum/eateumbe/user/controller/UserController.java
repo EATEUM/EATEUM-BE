@@ -1,6 +1,7 @@
 package com.eateum.eateumbe.user.controller;
 
 import com.eateum.eateumbe.global.common.ApiResponse;
+import com.eateum.eateumbe.global.common.BaseController;
 import com.eateum.eateumbe.user.dto.request.*;
 import com.eateum.eateumbe.user.dto.response.FindIdResponse;
 import com.eateum.eateumbe.user.dto.response.LoginResponse;
@@ -22,10 +23,10 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
-public class UserController {
+public class UserController extends BaseController {
 
     private final AuthService authService;
-    private final UserProfileService  userProfileService;
+    private final UserProfileService userProfileService;
     private final UserAccountService userAccountService;
 
     /**
@@ -34,8 +35,8 @@ public class UserController {
     @PostMapping("/login")
     public ApiResponse<LoginResponse> login(
             @RequestBody LoginRequest request,
-            HttpServletResponse response){
-        LoginResponse loginResponse = authService.login(request,response);
+            HttpServletResponse response) {
+        LoginResponse loginResponse = authService.login(request, response);
         return ApiResponse.success(loginResponse);
     }
 
@@ -45,8 +46,8 @@ public class UserController {
     @PostMapping("/reissue")
     public ApiResponse<LoginResponse> reissue(
             @CookieValue(value = "refreshToken", required = false) String refreshToken,
-            HttpServletResponse response){
-        LoginResponse loginResponse = authService.reissue(refreshToken,response);
+            HttpServletResponse response) {
+        LoginResponse loginResponse = authService.reissue(refreshToken, response);
         return ApiResponse.success(loginResponse);
     }
 
@@ -56,7 +57,7 @@ public class UserController {
     @PostMapping("/logout")
     public ApiResponse<Void> logout(
             @CookieValue(value = "refreshToken", required = false) String refreshToken,
-            HttpServletResponse response){
+            HttpServletResponse response) {
         authService.logout(refreshToken, response);
         return ApiResponse.success(null);
     }
@@ -66,15 +67,17 @@ public class UserController {
      */
     @GetMapping("/info")
     public ApiResponse<UserInfoResponse> getUserInfo(@AuthenticationPrincipal String userId) {
-        return ApiResponse.success(userProfileService.getUserInfo(userId));
+        String safeUserId = requireAuth(userId);
+        return ApiResponse.success(userProfileService.getUserInfo(safeUserId));
     }
 
     /**
      * 회원가입
      */
-    @PostMapping(value = "/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) //multipart/form-data 요청만 받음
-    public ApiResponse<Void> signup(@Valid @RequestPart("signup") SignupRequest signupRequest, //part단위로 나누어서 JSON 파트를 받음
-                                    @RequestPart(value = "profileImage", required = false) MultipartFile profileImage){ //파일 파트를 받음
+    @PostMapping(value = "/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) // multipart/form-data 요청만 받음
+    public ApiResponse<Void> signup(@Valid @RequestPart("signup") SignupRequest signupRequest, // part단위로 나누어서 JSON 파트를
+                                                                                               // 받음
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) { // 파일 파트를 받음
         userAccountService.signup(signupRequest, profileImage);
         return ApiResponse.success(null);
     }
@@ -84,9 +87,10 @@ public class UserController {
      */
     @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<Void> updateInfo(@AuthenticationPrincipal String userId,
-                                        @RequestPart("update") UpdateInfoRequest updateInfoRequest,
-                                        @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
-        userProfileService.updateInfo(userId, updateInfoRequest, profileImage);
+            @RequestPart("update") UpdateInfoRequest updateInfoRequest,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
+        String safeUserId = requireAuth(userId);
+        userProfileService.updateInfo(safeUserId, updateInfoRequest, profileImage);
         return ApiResponse.success(null);
     }
 
@@ -95,9 +99,9 @@ public class UserController {
      */
     @PatchMapping("/image")
     public ApiResponse<Void> deleteProfileImage(@AuthenticationPrincipal String userId) {
-
-        log.info("userId = {}", userId);
-        userProfileService.deleteProfileImageOnly(userId);
+        String safeUserId = requireAuth(userId);
+        log.info("userId = {}", safeUserId);
+        userProfileService.deleteProfileImageOnly(safeUserId);
         return ApiResponse.success(null);
     }
 
@@ -106,10 +110,10 @@ public class UserController {
      */
     @PostMapping("/password")
     public ApiResponse<Void> changePassword(@AuthenticationPrincipal String userId,
-                                            @RequestBody PasswordChangeRequest passwordChangeRequest) {
-
-                userAccountService.changePassword(userId, passwordChangeRequest);
-                return ApiResponse.success(null);
+            @RequestBody PasswordChangeRequest passwordChangeRequest) {
+        String safeUserId = requireAuth(userId);
+        userAccountService.changePassword(safeUserId, passwordChangeRequest);
+        return ApiResponse.success(null);
     }
 
     /**
@@ -126,7 +130,8 @@ public class UserController {
      */
     @PatchMapping("/withdraw")
     public ApiResponse<Void> withdraw(@AuthenticationPrincipal String userId) {
-        userAccountService.withdraw(userId);
+        String safeUserId = requireAuth(userId);
+        userAccountService.withdraw(safeUserId);
         return ApiResponse.success(null);
     }
 
@@ -143,7 +148,8 @@ public class UserController {
      * 비밀번호 찾기 (=재설정)
      */
     @PostMapping("/find/password")
-    public ApiResponse<PasswordResetResponse> findPassword(@RequestBody @Valid PasswordResetRequest passwordResetRequest) {
+    public ApiResponse<PasswordResetResponse> findPassword(
+            @RequestBody @Valid PasswordResetRequest passwordResetRequest) {
         PasswordResetResponse passwordResetResponse = userAccountService.resetPassword(passwordResetRequest);
         return ApiResponse.success(passwordResetResponse);
     }
@@ -157,10 +163,10 @@ public class UserController {
         return ApiResponse.success(null);
     }
 
-    //AccessToken 인증 테스트용
-//    @GetMapping("/me")
-//    public String me(@AuthenticationPrincipal String userId) {
-//        return "내 userId는 " + userId + " 입니다.";
-//    }
+    // AccessToken 인증 테스트용
+    // @GetMapping("/me")
+    // public String me(@AuthenticationPrincipal String userId) {
+    // return "내 userId는 " + userId + " 입니다.";
+    // }
 
 }
