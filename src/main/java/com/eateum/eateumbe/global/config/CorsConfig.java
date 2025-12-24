@@ -16,7 +16,8 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         //Vue 개발 서버
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        //config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOriginPatterns(List.of("*"));
 
         //허용할 HTTP 메서드
         config.setAllowedMethods(List.of(
