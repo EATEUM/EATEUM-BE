@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -39,6 +40,7 @@ public class UserAccountServiceImpl implements UserAccountService {
     /**
      * 회원가입
      */
+    @Transactional
     @Override
     public void signup(SignupRequest signupRequest, MultipartFile profileImage) {
 
@@ -82,6 +84,7 @@ public class UserAccountServiceImpl implements UserAccountService {
     /**
      * 비밀번호 변경
      */
+    @Transactional
     @Override
     public void changePassword(String userId, PasswordChangeRequest passwordChangeRequest) {
         User user = userMapper.findByUserIdForPassword(userId);
@@ -134,6 +137,7 @@ public class UserAccountServiceImpl implements UserAccountService {
     /**
      * 회원탈퇴
      */
+    @Transactional
     @Override
     public void withdraw(String userId) {
         int withdrawCount = userMapper.withdraw(userId);
@@ -166,6 +170,7 @@ public class UserAccountServiceImpl implements UserAccountService {
     /**
      * 비밀번호 재설정
      */
+    @Transactional
     @Override
     public PasswordResetResponse resetPassword(PasswordResetRequest passwordResetRequest) {
         
