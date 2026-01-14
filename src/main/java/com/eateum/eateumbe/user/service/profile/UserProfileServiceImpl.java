@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -44,6 +45,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     /**
      * 프로필 수정
      */
+    @Transactional
     @Override
     public void updateInfo(String userId, UpdateInfoRequest updateInfoRequest, MultipartFile profileImage) {
         User user = userReader.getActiveUser(userId);
@@ -80,6 +82,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     /**
      * 프로필 이미지 삭제
      */
+    @Transactional
     @Override
     public void deleteProfileImageOnly(String userId) {
         User user = userReader.getActiveUser(userId);
